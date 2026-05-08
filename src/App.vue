@@ -7,6 +7,7 @@
     </main>
 
     <Footer />
+    <CookieConsent />
   </div>
 </template>
 
@@ -15,6 +16,7 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import Navbar from './components/Navbar.vue'
 import Footer from './components/Footer.vue'
+import CookieConsent from './components/CookieConsent.vue'
 
 const route = useRoute()
 const showNavbar = computed(() => route.path !== '/login')
