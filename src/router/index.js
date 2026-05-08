@@ -3,6 +3,9 @@ import LoginPage from '../pages/LoginPage.vue'
 import AppointmentsPage from '../pages/AppointmentsPage.vue'
 import UsersPage from '../pages/UsersPage.vue'
 import PlanningPage from '../pages/PlanningPage.vue'
+import PrivacyPolicyPage from '../pages/PrivacyPolicyPage.vue'
+import TermsConditionsPage from '../pages/TermsConditionsPage.vue'
+import CookiesPolicyPage from '../pages/CookiesPolicyPage.vue'
 import { useAuthStore } from '../stores/auth'
 
 const routes = [
@@ -26,7 +29,11 @@ const routes = [
     path: '/planning',
     component: PlanningPage,
     meta: { requiresAuth: true, roles: ['user', 'admin'] }
-  }
+  },
+
+  { path: '/privacy-policy', component: PrivacyPolicyPage },
+  { path: '/terms-conditions', component: TermsConditionsPage },
+  { path: '/cookies-policy', component: CookiesPolicyPage }
 ]
 
 const router = createRouter({

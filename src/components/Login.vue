@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <div class="login-card">
-      <h1>NombreEmpresa</h1>
+      <h1>Bot Manager</h1>
       <p class="subtitle">Sistema de Gestión de Citas</p>
 
       <form @submit.prevent="handleSubmit" class="login-form">

@@ -3,7 +3,7 @@
     <div class="nav-container">
 
       <div class="nav-brand">
-        <h1>🏥 NombreEmpresa</h1>
+        <h1>Bot Manager</h1>
       </div>
 
       <div class="nav-menu">
