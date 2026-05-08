@@ -37,6 +37,11 @@
             <li>
               <a href="tel:+34123456789">+34 697519399</a>
             </li>
+            <li>
+              <a href="https://botmanagermarketing.onrender.com/" target="_blank" rel="noopener noreferrer" class="footer-web-link">
+                🌐 Sitio Web
+              </a>
+            </li>
           </ul>
         </div>
       </div>
@@ -111,6 +116,16 @@ const currentYear = ref(new Date().getFullYear())
 
 .footer-links a:hover {
   color: #3498db;
+}
+
+.footer-web-link {
+  font-weight: 600;
+  color: #2ecc71 !important;
+}
+
+.footer-web-link:hover {
+  color: #27ae60 !important;
+  text-decoration: underline;
 }
 
 .footer-bottom {

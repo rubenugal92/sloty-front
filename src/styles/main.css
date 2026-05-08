@@ -164,6 +164,25 @@ body {
   cursor: pointer;
 }
 
+.btn-info {
+  border: none;
+  border-radius: 999px;
+  padding: 0.7rem 1rem;
+  background: #3b82f6;
+  color: white;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.btn-info:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
 .empty-state {
   padding: 2rem;
   background: #eef2ff;

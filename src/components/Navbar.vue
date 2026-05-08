@@ -38,6 +38,15 @@
           {{ user?.username || 'Usuario' }} ({{ user?.role === 'admin' ? 'Admin' : 'User' }})
         </span>
 
+        <a 
+          href="https://botmanagermarketing.onrender.com/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          class="btn btn-info"
+        >
+          🌐 Sitio Web
+        </a>
+
         <button class="btn btn-logout" @click="handleLogout">
           Salir
         </button>
