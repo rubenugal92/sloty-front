@@ -2,7 +2,7 @@
   <div class="login-container">
     <div class="login-card">
       <h1>Bot Manager</h1>
-      <p class="subtitle">Sistema de Gestión de Citas</p>
+      <p class="subtitle">Gestión de citas de clientes y planificación de plantilla</p>
 
       <form @submit.prevent="handleSubmit" class="login-form">
         <div v-if="isRegister" class="form-group">
