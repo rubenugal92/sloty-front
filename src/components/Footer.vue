@@ -4,7 +4,7 @@
       <div class="footer-content">
         <div class="footer-section">
           <h3>Sobre Nosotros</h3>
-          <p>FisioCom - Gestión de citas y planificación de fisioterapia</p>
+          <p>Bot Manager - Gestión de citas y planificación de fisioterapia</p>
         </div>
 
         <div class="footer-section">
@@ -32,10 +32,10 @@
           <h3>Contacto</h3>
           <ul class="footer-links">
             <li>
-              <a href="mailto:info@fisiocom.com">info@fisiocom.com</a>
+              <a href="mailto:info@fisiocom.com">rubenugal@gmail.com</a>
             </li>
             <li>
-              <a href="tel:+34123456789">+34 123 456 789</a>
+              <a href="tel:+34123456789">+34 697519399</a>
             </li>
           </ul>
         </div>
