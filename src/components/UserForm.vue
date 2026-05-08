@@ -37,12 +37,12 @@
       </div>
 
       <div class="form-group">
-        <label>Password</label>
+        <label>Password {{ isEditing ? '(dejar vacío para mantener actual)' : '' }}</label>
         <input 
           v-model="form.password"
           type="password"
           placeholder="••••••••"
-          required
+          :required="!isEditing"
           :disabled="loading"
         />
       </div>
@@ -137,8 +137,8 @@ export default {
         loading.value = true
         const data = { ...form.value }
         
-        // No enviar password si estamos editando
-        if (isEditing.value) {
+        // Si estamos editando y la password está vacía, no enviarla
+        if (isEditing.value && !data.password) {
           delete data.password
         }
 
