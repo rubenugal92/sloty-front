@@ -6,6 +6,8 @@
         <h1>Bot Manager</h1>
       </div>
 
+      <CompanySelector />
+
       <div class="nav-menu">
         <button
           class="nav-button"
@@ -35,7 +37,7 @@
 
       <div class="nav-user">
         <span class="user-name">
-          {{ user?.username || 'Usuario' }} ({{ user?.role === 'admin' ? 'Admin' : 'User' }})
+          {{ user?.username || 'Usuario' }} ({{ roleLabel }})
         </span>
 
         <a 
@@ -61,13 +63,28 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getUser, logout } from '../api/appointments.js'
 import { useAuthStore } from '../stores/auth'
+import { useCompaniesStore } from '../stores/companies'
+import { useAppointmentsStore } from '../stores/appointments'
+import { useUsersStore } from '../stores/users'
+import { useFisiosStore } from '../stores/fisios'
+import CompanySelector from './CompanySelector.vue'
 
 const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
+const companies = useCompaniesStore()
+const appointments = useAppointmentsStore()
+const users = useUsersStore()
+const fisios = useFisiosStore()
 
 const user = ref(null)
-const isAdmin = computed(() => auth.user?.role === 'admin')
+const isAdmin = computed(() => auth.isAdmin)
+
+const roleLabel = computed(() => {
+  if (auth.user?.role === 'superadmin') return 'Superadmin'
+  if (auth.user?.role === 'admin') return 'Admin'
+  return 'Usuario'
+})
 
 const go = (path) => {
   router.push(path)
@@ -81,5 +98,18 @@ const handleLogout = () => {
 
 onMounted(() => {
   user.value = getUser()
+  
+  // Inicializar stores de datos
+  if (auth.isAuthenticated) {
+    // Cargar compañías si es superadmin
+    if (auth.isSuperAdmin) {
+      companies.loadCompanies()
+    }
+    
+    // Cargar datos iniciales
+    appointments.setupCompanyChangeListener()
+    users.setupCompanyChangeListener()
+    fisios.setupCompanyChangeListener()
+  }
 })
 </script>

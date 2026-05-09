@@ -15,7 +15,20 @@ export const useFisiosStore = defineStore('fisios', {
 
   actions: {
     async fetch() {
-      this.items = await getAllFisios()
+      try {
+        this.loading = true
+        this.items = await getAllFisios()
+      } catch (error) {
+        console.error('Error loading fisios:', error)
+      } finally {
+        this.loading = false
+      }
+    },
+
+    setupCompanyChangeListener() {
+      window.addEventListener('company-changed', () => {
+        this.fetch()
+      })
     },
 
     async save(data) {
@@ -36,5 +49,9 @@ export const useFisiosStore = defineStore('fisios', {
     edit(fisio) {
       this.editing = fisio
     }
+  },
+
+  mounted() {
+    this.setupCompanyChangeListener()
   }
 })

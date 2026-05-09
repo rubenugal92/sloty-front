@@ -15,7 +15,20 @@ export const useUsersStore = defineStore('users', {
 
   actions: {
     async fetch() {
-      this.items = await getAllUsers()
+      try {
+        this.loading = true
+        this.items = await getAllUsers()
+      } catch (error) {
+        console.error('Error loading users:', error)
+      } finally {
+        this.loading = false
+      }
+    },
+
+    setupCompanyChangeListener() {
+      window.addEventListener('company-changed', () => {
+        this.fetch()
+      })
     },
 
     async save(data) {
@@ -36,5 +49,9 @@ export const useUsersStore = defineStore('users', {
     edit(user) {
       this.editing = user
     }
+  },
+
+  mounted() {
+    this.setupCompanyChangeListener()
   }
 })

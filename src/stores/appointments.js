@@ -9,12 +9,26 @@ import {
 export const useAppointmentsStore = defineStore('appointments', {
   state: () => ({
     items: [],
-    selected: null
+    selected: null,
+    loading: false
   }),
 
   actions: {
     async load() {
-      this.items = await getAppointments()
+      try {
+        this.loading = true
+        this.items = await getAppointments()
+      } catch (error) {
+        console.error('Error loading appointments:', error)
+      } finally {
+        this.loading = false
+      }
+    },
+
+    setupCompanyChangeListener() {
+      window.addEventListener('company-changed', () => {
+        this.load()
+      })
     },
 
     select(appointment) {
@@ -37,5 +51,9 @@ export const useAppointmentsStore = defineStore('appointments', {
       await this.load()
       this.selected = null
     }
+  },
+
+  mounted() {
+    this.setupCompanyChangeListener()
   }
 })
