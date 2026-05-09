@@ -66,7 +66,6 @@ import { useAuthStore } from '../stores/auth'
 import { useCompaniesStore } from '../stores/companies'
 import { useAppointmentsStore } from '../stores/appointments'
 import { useUsersStore } from '../stores/users'
-import { useFisiosStore } from '../stores/fisios'
 import CompanySelector from './CompanySelector.vue'
 
 const router = useRouter()
@@ -75,7 +74,6 @@ const auth = useAuthStore()
 const companies = useCompaniesStore()
 const appointments = useAppointmentsStore()
 const users = useUsersStore()
-const fisios = useFisiosStore()
 
 const user = ref(null)
 const isAdmin = computed(() => auth.isAdmin)
@@ -109,7 +107,7 @@ onMounted(() => {
     // Cargar datos iniciales
     appointments.setupCompanyChangeListener()
     users.setupCompanyChangeListener()
-    fisios.setupCompanyChangeListener()
+
   }
 })
 </script>
