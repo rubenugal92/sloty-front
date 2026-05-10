@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useCompaniesStore } from './companies'
 import {
   getAllUsers,
   createUser,
@@ -17,7 +18,8 @@ export const useUsersStore = defineStore('users', {
     async fetch() {
       try {
         this.loading = true
-        this.items = await getAllUsers()
+        const companies = useCompaniesStore()
+        this.items = await getAllUsers(companies.selectedCompanyId)
       } catch (error) {
         console.error('Error loading users:', error)
       } finally {
@@ -49,9 +51,5 @@ export const useUsersStore = defineStore('users', {
     edit(user) {
       this.editing = user
     }
-  },
-
-  mounted() {
-    this.setupCompanyChangeListener()
   }
 })

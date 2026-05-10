@@ -85,20 +85,19 @@ const handleLogout = () => {
   router.push('/login')
 }
 
-onMounted(() => {
+onMounted(async () => {
   user.value = getUser()
-  
-  // Inicializar stores de datos
+
   if (auth.isAuthenticated) {
-    // Cargar compañías si es superadmin
-    if (auth.isSuperAdmin) {
-      companies.loadCompanies()
-    }
-    
-    // Cargar datos iniciales
     appointments.setupCompanyChangeListener()
     users.setupCompanyChangeListener()
 
+    if (auth.isSuperAdmin) {
+      await companies.loadCompanies()
+    }
+
+    await appointments.load()
+    await users.fetch()
   }
 })
 </script>

@@ -61,22 +61,26 @@ export const isAuthenticated = () => !!getToken()
 
 // ===================== APPOINTMENTS =====================
 
-export const getAllAppointments = async () => {
-  const { data } = await api.get('/appointments')
+export const getAllAppointments = async (companyId = null) => {
+  let url = '/appointments'
+  if (companyId) url += `?company_id=${companyId}`
+  const { data } = await api.get(url)
   return data
 }
 
 export const getAppointments = getAllAppointments
 
-export const getAppointmentById = async (id) => {
-  const { data } = await api.get(`/appointments/${id}`)
+export const getAppointmentById = async (id, companyId = null) => {
+  let url = `/appointments/${id}`
+  if (companyId) url += `?company_id=${companyId}`
+  const { data } = await api.get(url)
   return data
 }
 
-export const getAppointmentsByDateRange = async (startDate, endDate) => {
-  const { data } = await api.get(
-    `/appointments/range/${startDate}/${endDate}`
-  )
+export const getAppointmentsByDateRange = async (startDate, endDate, companyId = null) => {
+  let url = `/appointments/range/${startDate}/${endDate}`
+  if (companyId) url += `?company_id=${companyId}`
+  const { data } = await api.get(url)
   return data
 }
 
@@ -104,13 +108,17 @@ export const deleteAppointment = async (id) => {
 }
 
 // ===================== USERS =====================
-export const getAllUsers = async () => {
-  const { data } = await api.get('/users')
+export const getAllUsers = async (companyId = null) => {
+  let url = '/users'
+  if (companyId) url += `?company_id=${companyId}`
+  const { data } = await api.get(url)
   return data
 }
 
-export const getUserById = async (id) => {
-  const { data } = await api.get(`/users/${id}`)
+export const getUserById = async (id, companyId = null) => {
+  let url = `/users/${id}`
+  if (companyId) url += `?company_id=${companyId}`
+  const { data } = await api.get(url)
   return data
 }
 
