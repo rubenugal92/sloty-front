@@ -4,7 +4,7 @@
 
     <form @submit.prevent="submitForm" class="user-form">
       <div class="form-group">
-        <label>Nombre de Empleado</label>
+        <label>Nombre de Usuario</label>
         <input 
           v-model="form.username"
           type="text"
@@ -59,26 +59,23 @@
 
       <div class="form-group">
         <label>Especialidades</label>
-        <input 
+        <input
           v-model="form.specialties"
           type="text"
-          placeholder="Ej: Traumatología, Deportiva"
+          placeholder="Ej: Color, Manicura, Nutrición deportiva…"
           :disabled="loading"
         />
       </div>
 
 
       <div class="form-group">
-        <label>Tipo de Empleado</label>
-        <select v-model="form.type" required :disabled="loading">
-          <option value="">Selecciona un tipo</option>
-          <option value="fisio">Fisioterapeuta</option>
-          <option value="osteo">Osteópata</option>
-          <option value="quiro">Quiropráctico</option>
-          <option value="recep">Recepcionista</option>
-          <option value="limpieza">Servicio de limpieza</option>
-          <option value="admin">Administrador</option>
-        </select>
+        <label>Cargo / Puesto</label>
+        <input
+          v-model="form.type"
+          type="text"
+          placeholder="Ej: Peluquero, Fisioterapeuta, Camarero…"
+          :disabled="loading"
+        />
       </div>
 
       <div class="form-group">
@@ -166,36 +163,27 @@ export default {
       }
     }
 
+    const emptyForm = () => ({
+      username: '',
+      name: '',
+      email: '',
+      password: '',
+      phone: '',
+      specialties: '',
+      type: '',
+      role: 'user'
+    })
+
     const resetForm = () => {
-      form.value = {
-        username: '',
-        name: '',
-        email: '',
-        password: '',
-        phone: '',
-        specialties: '',
-        type: 'fisio',
-        role: 'user',
-        password: ''
-      }
+      form.value = emptyForm()
       emit('cancel')
     }
 
     watch(() => props.editing, (newVal) => {
       if (newVal) {
-        form.value = { ...newVal, password: '' }
+        form.value = { ...emptyForm(), ...newVal, password: '' }
       } else {
-        form.value = {
-          username: '',
-          name: '',
-          email: '',
-          password: '',
-          phone: '',
-          specialties: '',
-          type: 'fisio',
-          role: 'user',
-          password: ''
-        }
+        form.value = emptyForm()
       }
     }, { immediate: true })
 
@@ -212,95 +200,44 @@ export default {
 
 <style scoped>
 .form-container {
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 1.75rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-md);
 }
 
 .form-container h3 {
-  margin: 0 0 1.5rem 0;
-  font-size: 1.25rem;
-  color: #1f2937;
+  margin: 0 0 1.25rem 0;
+  font-size: 1.15rem;
+  color: var(--text-primary);
 }
 
 .user-form {
   display: grid;
-  gap: 1.5rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-}
-
-.form-group label {
-  font-weight: 500;
-  color: #374151;
-  font-size: 0.95rem;
-}
-
-.form-group input,
-.form-group select {
-  padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: border-color 0.2s;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-  outline: none;
-  border-color: #0066cc;
-  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
-}
-
-.form-group input:disabled,
-.form-group select:disabled {
-  background: #f3f4f6;
-  color: #9ca3af;
-  cursor: not-allowed;
+  gap: 0.35rem;
 }
 
 .form-actions {
+  grid-column: 1 / -1;
   display: flex;
-  gap: 1rem;
+  gap: 0.6rem;
   flex-wrap: wrap;
+  margin-top: 0.5rem;
 }
 
-.btn {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 0.95rem;
-}
+.form-actions .btn { flex: 1; min-width: 130px; }
 
-.btn-primary {
-  background: #0066cc;
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: #0052a3;
-}
-
-.btn-secondary {
-  background: #e5e7eb;
-  color: #1f2937;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background: #d1d5db;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+@media (max-width: 640px) {
+  .user-form { grid-template-columns: 1fr; }
+  .form-container { padding: 1.25rem; }
 }
 </style>

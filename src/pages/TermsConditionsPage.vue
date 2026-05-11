@@ -7,7 +7,7 @@
       <section>
         <h2>1. Aceptación de Términos</h2>
         <p>
-          Al acceder y utilizar FisioCom, aceptas estar vinculado por estos términos y condiciones. 
+          Al acceder y utilizar Bot Manager, aceptas estar vinculado por estos términos y condiciones. 
           Si no estás de acuerdo con alguna parte, te pedimos que no utilices nuestros servicios.
         </p>
       </section>
@@ -15,7 +15,8 @@
       <section>
         <h2>2. Descripción del Servicio</h2>
         <p>
-          FisioCom es una plataforma de gestión de citas y planificación para servicios de fisioterapia. 
+          Bot Manager es una plataforma de gestión de citas y planificación de plantilla para negocios
+          de cualquier sector (peluquerías, clínicas, consultas, entrenadores personales, restaurantes, etc.).
           Nos comprometemos a proporcionar un servicio de calidad, pero no garantizamos disponibilidad 24/7.
         </p>
       </section>
@@ -35,7 +36,7 @@
 
       <section>
         <h2>4. Uso Permitido</h2>
-        <p>Te comprometes a utilizar FisioCom únicamente para propósitos legales y de acuerdo con estos términos.</p>
+        <p>Te comprometes a utilizar Bot Manager únicamente para propósitos legales y de acuerdo con estos términos.</p>
         <p><strong>No deberás:</strong></p>
         <ul>
           <li>Acceder a información confidencial sin autorización</li>
@@ -49,15 +50,15 @@
       <section>
         <h2>5. Política de Cancelación de Citas</h2>
         <p>
-          Las cancelaciones deben realizarse con al menos 24 horas de anticipación. 
-          Las cancelaciones tardías pueden estar sujetas a cargos según las políticas de la clínica.
+          Las cancelaciones deben realizarse con al menos 24 horas de anticipación.
+          Las cancelaciones tardías pueden estar sujetas a cargos según las políticas del negocio.
         </p>
       </section>
 
       <section>
         <h2>6. Propiedad Intelectual</h2>
         <p>
-          Todo el contenido en FisioCom (diseño, texto, gráficos, logos) está protegido por derechos de autor. 
+          Todo el contenido en Bot Manager (diseño, texto, gráficos, logos) está protegido por derechos de autor. 
           No puedes reproducir, distribuir o transmitir ningún contenido sin consentimiento previo.
         </p>
       </section>
@@ -65,16 +66,16 @@
       <section>
         <h2>7. Limitación de Responsabilidad</h2>
         <p>
-          FisioCom se proporciona "tal como está". No garantizamos:
+          Bot Manager se proporciona "tal como está". No garantizamos:
         </p>
         <ul>
           <li>Disponibilidad continua del servicio</li>
           <li>Ausencia de errores o inexactitudes</li>
-          <li>Resultados médicos específicos</li>
+          <li>Resultados específicos del servicio prestado</li>
         </ul>
         <p>
-          <strong>Descargo de responsabilidad:</strong> Esta plataforma no sustituye el consejo médico profesional. 
-          Siempre consulta con un profesional sanitario cualificado.
+          <strong>Descargo de responsabilidad:</strong> Esta plataforma facilita la gestión de citas,
+          pero no sustituye al consejo profesional del negocio que la utiliza.
         </p>
       </section>
 

@@ -7,7 +7,7 @@
       <section>
         <h2>1. Responsable del Tratamiento</h2>
         <p>
-          FisioCom es el responsable del tratamiento de tus datos personales. 
+          Bot Manager es el responsable del tratamiento de tus datos personales. 
           Para consultas sobre privacidad, contacta con: info@fisiocom.com
         </p>
       </section>

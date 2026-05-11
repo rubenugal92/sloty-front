@@ -1,85 +1,102 @@
 <template>
   <div class="calendar">
-
     <!-- HEADER -->
-    <div class="calendar-header">
-      <button @click="previousMonth" class="nav-btn">&lt;</button>
+    <header class="calendar-header">
+      <button @click="previousMonth" class="nav-btn" aria-label="Mes anterior">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
 
-      <h2>{{ monthYear }}</h2>
+      <div class="calendar-title">
+        <span class="title-month">{{ monthLabel }}</span>
+        <span class="title-year">{{ yearLabel }}</span>
+      </div>
 
-      <button @click="nextMonth" class="nav-btn">&gt;</button>
-    </div>
+      <div class="header-actions">
+        <button @click="goToToday" class="btn btn-ghost btn-sm">Hoy</button>
+        <button @click="nextMonth" class="nav-btn" aria-label="Mes siguiente">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </header>
 
     <!-- WEEKDAYS -->
     <div class="weekdays">
-      <div v-for="day in weekDays" :key="day" class="weekday">
-        {{ day }}
-      </div>
+      <div v-for="day in weekDays" :key="day" class="weekday">{{ day }}</div>
     </div>
 
     <!-- GRID -->
     <div class="days-grid">
-      <div
+      <button
         v-for="(cell, index) in calendarDays"
         :key="index"
+        type="button"
         :class="['day', {
           empty: !cell,
           today: isToday(cell),
           selected: isSelected(cell),
           'has-appointments': hasAppointments(cell)
         }]"
+        :disabled="!cell"
         @click="cell && selectDay(cell)"
       >
         <template v-if="cell">
-          <div class="day-number">{{ cell }}</div>
-          <div v-if="hasAppointments(cell)" class="appointment-count">
-            {{ getAppointmentCount(cell) }}
-          </div>
+          <span class="day-number">{{ cell }}</span>
+          <span v-if="hasAppointments(cell)" class="day-pill">{{ getAppointmentCount(cell) }}</span>
         </template>
-      </div>
+      </button>
     </div>
 
     <!-- APPOINTMENTS -->
     <div class="appointments-list">
-      <h3>
-        <span v-if="selectedDayData">
-          Citas para {{ selectedDayData }}
+      <div class="list-header">
+        <h3 v-if="selectedDayData">{{ selectedDayData }}</h3>
+        <h3 v-else class="muted-title">Selecciona un día</h3>
+        <span v-if="appointmentsForSelectedDay.length" class="count-pill">
+          {{ appointmentsForSelectedDay.length }} {{ appointmentsForSelectedDay.length === 1 ? 'cita' : 'citas' }}
         </span>
-        <span v-else>
-          Selecciona un día para ver las citas
-        </span>
-      </h3>
+      </div>
 
       <div v-if="appointmentsForSelectedDay.length > 0" class="appointments">
-        <div
+        <article
           v-for="appointment in appointmentsForSelectedDay"
           :key="appointment.id"
           class="appointment-card"
           @click="$emit('appointment-selected', appointment)"
         >
-          <div class="appointment-time">
-            {{ formatTime(appointment.datetime) }}
+          <div class="appointment-main">
+            <div class="appointment-time">{{ formatTime(appointment.datetime) }}</div>
+            <div class="appointment-phone">{{ appointment.phone }}</div>
           </div>
-          <div class="appointment-phone">
-            {{ appointment.phone }}
+
+          <div class="appointment-meta">
+            <span :class="['status-badge', 'status-' + appointment.status]">
+              {{ statusLabel(appointment.status) }}
+            </span>
+            <span v-if="appointment.service" class="service-tag">{{ appointment.service }}</span>
           </div>
-          <div v-if="appointment.custom_id" class="appointment-custom-id">
-            <strong>ID:</strong> {{ appointment.custom_id }}
-          </div>
+
           <div v-if="appointment.notes" class="appointment-notes">
-            <strong>Dolencia:</strong> {{ appointment.notes }}
+            <strong>Notas:</strong> {{ appointment.notes }}
           </div>
-          <div :class="'appointment-status appointment-status-' + appointment.status">
-            {{ appointment.status }}
+
+          <div v-if="appointment.custom_id" class="appointment-id">
+            <span class="id-label">ID</span>
+            <code>{{ appointment.custom_id }}</code>
           </div>
-        </div>
+        </article>
       </div>
 
-      <div v-else class="no-appointments">
-        No hay citas este día
+      <div v-else-if="selectedDayData" class="no-appointments">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <p>No hay citas para este día</p>
+      </div>
+
+      <div v-else class="no-appointments faint">
+        <p>Selecciona un día del calendario para ver sus citas.</p>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -101,12 +118,25 @@ export default {
 
     const weekDays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
 
-    const monthYear = computed(() =>
-      currentDate.value.toLocaleDateString('es-ES', {
-        month: 'long',
-        year: 'numeric'
-      }).replace(/^\w/, c => c.toUpperCase())
+    const monthLabel = computed(() =>
+      currentDate.value.toLocaleDateString('es-ES', { month: 'long' })
+        .replace(/^\w/, c => c.toUpperCase())
     )
+
+    const yearLabel = computed(() => currentDate.value.getFullYear())
+
+    const statusLabel = (status) => ({
+      confirmed: 'Confirmada',
+      pending:   'Pendiente',
+      cancelled: 'Cancelada'
+    }[status] || status)
+
+    const goToToday = () => {
+      currentDate.value = new Date()
+      const today = new Date()
+      selectedDay.value = today.getDate()
+      emit('date-selected', getDateString(today.getDate()))
+    }
 
     const year = computed(() => currentDate.value.getFullYear())
     const month = computed(() => currentDate.value.getMonth())
@@ -209,11 +239,13 @@ export default {
 
     return {
       currentDate,
-      monthYear,
+      monthLabel,
+      yearLabel,
       weekDays,
       calendarDays,
       previousMonth,
       nextMonth,
+      goToToday,
       isToday,
       isSelected,
       selectDay,
@@ -221,7 +253,8 @@ export default {
       getAppointmentCount,
       selectedDayData,
       appointmentsForSelectedDay,
-      formatTime
+      formatTime,
+      statusLabel
     }
   }
 }
@@ -231,76 +264,111 @@ export default {
 .calendar {
   display: flex;
   flex-direction: column;
+  gap: 1.25rem;
 }
 
-/* 🔥 HEADER BIEN ALINEADO */
+/* ---------- header ---------- */
 .calendar-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
-  gap: 1rem;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
-.calendar-header h2 {
-  flex: 1;
-  text-align: center;
-  margin: 0;
-  text-transform: capitalize;
+.calendar-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+.title-month {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.015em;
+}
+.title-year {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-muted);
 }
 
-/* 🔥 BOTONES NO TOCADOS */
-.nav-btn {
-  background: #667eea;
-  color: white;
-  border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 1.2rem;
+.header-actions {
   display: flex;
   align-items: center;
+  gap: 0.4rem;
+}
+
+.nav-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  transition: 0.2s ease;
+  transition: background var(--duration-fast) var(--ease-out),
+              color var(--duration-fast) var(--ease-out),
+              border-color var(--duration-fast) var(--ease-out);
 }
-
 .nav-btn:hover {
-  background: #764ba2;
-  transform: scale(1.1);
+  background: var(--primary-50);
+  color: var(--primary-700);
+  border-color: var(--primary-200);
 }
 
-.weekdays,
-.days-grid {
+/* ---------- grid ---------- */
+.weekdays {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 4px;
 }
 
 .weekday {
   text-align: center;
-  font-weight: bold;
-  padding: 0.5rem;
-  color: #667eea;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  padding: 0.4rem 0;
 }
 
-/* GRID */
 .days-grid {
-  gap: 8px;
-  margin-bottom: 2rem;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
 }
 
 .day {
   aspect-ratio: 1;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
+  position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
+  gap: 4px;
+  padding: 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text-primary);
   cursor: pointer;
-  min-width: 0;
-  padding: 0.5rem;
-  box-sizing: border-box;
+  font: inherit;
+  transition: background var(--duration-fast) var(--ease-out),
+              border-color var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.day:hover:not(.empty):not(:disabled) {
+  border-color: var(--primary-300);
+  background: var(--primary-50);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 .day.empty {
@@ -310,144 +378,232 @@ export default {
 }
 
 .day.today {
-  background: #667eea;
-  color: white;
+  border-color: var(--primary-500);
+  background: linear-gradient(180deg, var(--primary-50), white);
+  color: var(--primary-700);
+  font-weight: 700;
+}
+.day.today .day-number::after {
+  content: "";
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--primary-600);
 }
 
 .day.selected {
-  background: #f0e6ff;
-  border-color: #764ba2;
-}
-
-.appointment-count {
-  font-size: 0.75rem;
-  background: #ff6b6b;
+  background: linear-gradient(180deg, var(--primary-600), var(--primary-700));
+  border-color: var(--primary-700);
   color: white;
-  padding: 0.2rem 0.4rem;
-  border-radius: 4px;
-  margin-top: 0.25rem;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+  transform: translateY(-1px);
 }
- .appointment-status {
-  display: inline-block;
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  margin-top: 0.5rem;
-  font-weight: 600;
-  text-transform: uppercase;
+.day.selected .day-pill {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
 }
-.appointment-card {
-  background: #f8f9fa;
-  padding: 1rem;
-  border-left: 4px solid #667eea;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
+.day.selected.today .day-number::after { background: white; }
 
-.appointment-card:hover {
-  background: #e9ecef;
-  transform: translateX(4px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.appointment-time {
-  font-weight: bold;
-  color: #667eea;
-  font-size: 1rem;
-}
-
-.appointment-phone {
-  color: #666;
+.day-number {
+  position: relative;
   font-size: 0.9rem;
-  margin-top: 0.25rem;
+  line-height: 1;
 }
 
-.appointment-custom-id {
-  color: #1890ff;
-  font-size: 0.85rem;
-  margin-top: 0.5rem;
-  padding: 0.4rem;
-  background: #e6f7ff;
-  border-radius: 4px;
-  border-left: 3px solid #1890ff;
-  font-family: monospace;
-  word-break: break-all;
+.day-pill {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--primary-100);
+  color: var(--primary-700);
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.appointment-notes {
-  color: #555;
-  font-size: 0.9rem;
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  background: #fff9e6;
-  border-radius: 4px;
-  border-left: 3px solid #faad14;
-  font-style: italic;
-}
-.appointment-time {
-  font-weight: bold;
-  color: #667eea;
-  font-size: 1rem;
-}
-.appointment-phone {
-  color: #666;
-  font-size: 0.9rem;
-  margin: 0.25rem 0;
-}
-
-appointment-status {
-  display: inline-block;
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  margin-top: 0.5rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.appointment-status-confirmed {
-  background: #d4edda;
-  color: #155724;
-}
-
-.appointment-status-cancelled {
-  background: #f8d7da;
-  color: #721c24;
-}
-
-.appointment-status-pending {
-  background: #fff3cd;
-  color: #856404;
-}
-
+/* ---------- list ---------- */
 .appointments-list {
-  margin-top: 1rem;
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-.appointments-list h3 {
-  margin: 0 0 1rem 0;
-  color: #333;
-  font-size: 1.1rem;
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.list-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-primary);
   text-transform: capitalize;
+}
+
+.muted-title { color: var(--text-muted); font-weight: 500; }
+
+.count-pill {
+  padding: 3px 10px;
+  background: var(--primary-50);
+  color: var(--primary-700);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .appointments {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  max-height: 300px;
+  gap: 0.65rem;
+  max-height: 360px;
   overflow-y: auto;
+  padding-right: 4px;
+}
+
+.appointment-card {
+  position: relative;
+  padding: 0.9rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.appointment-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 14px;
+  bottom: 14px;
+  width: 3px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--primary-500), var(--accent-500));
+}
+
+.appointment-card:hover {
+  border-color: var(--primary-300);
+  transform: translateX(2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.appointment-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-left: 0.75rem;
+}
+
+.appointment-time {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.appointment-phone {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-family: var(--font-mono);
+}
+
+.appointment-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding-left: 0.75rem;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.status-confirmed { background: var(--success-50);  color: var(--success-700); }
+.status-pending   { background: var(--warning-50);  color: var(--warning-700); }
+.status-cancelled { background: var(--danger-50);   color: var(--danger-700); }
+
+.service-tag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface-subtle);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+.appointment-notes {
+  margin-left: 0.75rem;
+  padding: 0.5rem 0.65rem;
+  background: var(--warning-50);
+  border-left: 3px solid var(--warning-500);
+  border-radius: 6px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+.appointment-notes strong { color: var(--warning-700); font-weight: 600; }
+
+.appointment-id {
+  margin-left: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.id-label {
+  background: var(--primary-50);
+  color: var(--primary-700);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.appointment-id code {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  word-break: break-all;
 }
 
 .no-appointments {
   text-align: center;
-  color: #999;
-  padding: 2rem 1rem;
-  font-size: 0.95rem;
+  padding: 2.5rem 1rem;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+.no-appointments p { color: var(--text-muted); font-size: 0.9rem; }
+.no-appointments.faint { padding: 1.5rem 1rem; }
+
+@media (max-width: 540px) {
+  .day-number { font-size: 0.8rem; }
+  .day { padding: 0.25rem; }
+  .day-pill { min-width: 16px; height: 16px; font-size: 0.65rem; }
 }
 </style>

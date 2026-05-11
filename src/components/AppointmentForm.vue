@@ -13,8 +13,8 @@
     <form @submit.prevent="submitForm" class="appointment-form">
       <div class="form-group">
         <label>Teléfono del Cliente</label>
-        <input 
-          v-model="form.phone" 
+        <input
+          v-model="form.phone"
           type="tel"
           placeholder="+34 xxx xxx xxx"
           required
@@ -23,26 +23,26 @@
       </div>
 
       <div class="form-group">
-        <label>Fisioterapeuta</label>
-        <select 
-          v-model="form.fisio_id"
+        <label>Empleado</label>
+        <select
+          v-model="form.user_id"
           required
-          :disabled="loading || fisios.length === 0"
+          :disabled="loading || users.length === 0"
           @change="updateAvailableSlots"
         >
-          <option value="">Selecciona un fisio</option>
-          <option v-for="fisio in fisios" :key="fisio.id" :value="fisio.id">
-            {{ fisio.name }}{{ fisio.specialties ? ` (${fisio.specialties})` : '' }}
+          <option value="">Selecciona un empleado</option>
+          <option v-for="employee in users" :key="employee.id" :value="employee.id">
+            {{ employee.name }}{{ employee.specialties ? ` (${employee.specialties})` : '' }}
           </option>
         </select>
-        <small v-if="fisios.length === 0" class="text-danger">
-          No hay fisioterapeutas disponibles
+        <small v-if="users.length === 0" class="text-danger">
+          No hay empleados disponibles
         </small>
       </div>
 
       <div class="form-group">
         <label>Fecha</label>
-        <input 
+        <input
           v-model="form.date"
           type="date"
           required
@@ -53,7 +53,7 @@
 
       <div class="form-group">
         <label>Hora</label>
-        <select 
+        <select
           v-model="form.time"
           required
           :disabled="loading || availableSlots.length === 0"
@@ -63,24 +63,24 @@
             {{ slot }}
           </option>
         </select>
-        <small v-if="availableSlots.length === 0 && form.date && form.fisio_id" class="text-danger">
-          No hay horarios disponibles para esta fecha con este fisio
+        <small v-if="availableSlots.length === 0 && form.date && form.user_id" class="text-danger">
+          No hay horarios disponibles para esta fecha con este empleado
         </small>
       </div>
 
       <div class="form-group">
         <label>Servicio</label>
-        <select v-model="form.service" :disabled="loading">
-          <option value="physio">Fisioterapia General</option>
-          <option value="sports">Fisioterapia Deportiva</option>
-          <option value="rehab">Rehabilitación</option>
-          <option value="massage">Masaje Terapéutico</option>
-        </select>
+        <input
+          v-model="form.service"
+          type="text"
+          placeholder="Ej: Corte de pelo, Masaje deportivo, Consulta nutricional…"
+          :disabled="loading"
+        />
       </div>
 
       <div class="form-group">
         <label>Notas</label>
-        <textarea 
+        <textarea
           v-model="form.notes"
           rows="3"
           :disabled="loading"
@@ -101,7 +101,7 @@
           {{ loading ? 'Guardando...' : (isEditing ? 'Actualizar' : 'Crear Cita') }}
         </button>
 
-        <button 
+        <button
           v-if="isEditing"
           type="button"
           class="btn btn-danger"
@@ -111,7 +111,7 @@
           {{ loading ? 'Eliminando...' : 'Eliminar' }}
         </button>
 
-        <button 
+        <button
           type="button"
           class="btn btn-secondary"
           @click="resetForm"
@@ -142,24 +142,24 @@ export default {
       phone: '',
       date: '',
       time: '',
-      fisio_id: '',
-      service: 'physio',
+      user_id: '',
+      service: '',
       status: 'confirmed',
       notes: ''
     })
 
     const availableSlots = ref([])
-    const fisios = ref([])
+    const users = ref([])
     const lastCustomId = ref('')
 
     const isEditing = computed(() => !!props.appointment?.id)
 
-    const loadFisios = async () => {
+    const loadUsers = async () => {
       try {
-        fisios.value = await getAllUsers()
+        users.value = await getAllUsers()
       } catch (e) {
         console.error('Error loading users:', e)
-        fisios.value = []
+        users.value = []
       }
     }
 
@@ -168,8 +168,8 @@ export default {
         phone: '',
         date: props.selectedDate || '',
         time: '',
-        fisio_id: '',
-        service: 'physio',
+        user_id: '',
+        service: '',
         status: 'confirmed',
         notes: ''
       }
@@ -178,12 +178,12 @@ export default {
     }
 
     const updateAvailableSlots = async () => {
-      if (!form.value.date || !form.value.fisio_id) {
+      if (!form.value.date || !form.value.user_id) {
         availableSlots.value = []
         return
       }
       try {
-        availableSlots.value = await getAvailableSlots(form.value.date, form.value.fisio_id)
+        availableSlots.value = await getAvailableSlots(form.value.date, form.value.user_id)
         form.value.time = ''
       } catch (e) {
         console.error('Error fetching slots:', e)
@@ -206,7 +206,7 @@ export default {
         service: form.value.service,
         status: form.value.status,
         notes: form.value.notes,
-        user_id: parseInt(form.value.fisio_id)
+        user_id: parseInt(form.value.user_id)
       }
 
       try {
@@ -214,18 +214,13 @@ export default {
           await updateAppointmentAPI(props.appointment.id, appointmentData)
         } else {
           const response = await createAppointment(appointmentData)
-          // Mostrar el custom_id después de crear
           if (response.custom_id) {
             lastCustomId.value = response.custom_id
           }
         }
 
         emit('save', appointmentData)
-        if (!isEditing.value) {
-          resetForm()
-        } else {
-          resetForm()
-        }
+        resetForm()
 
       } catch (e) {
         console.error(e)
@@ -257,14 +252,14 @@ export default {
 
       form.value.phone = a.phone
       form.value.date = a.datetime.split('T')[0]
-      form.value.fisio_id = a.fisio_id || ''
-      
+      form.value.user_id = a.user_id || ''
+
       // 🔥 FIX: Convertir UTC a zona horaria local España (UTC+2 CEST)
       const timePart = a.datetime.split('T')[1].slice(0,5)
       const [hours, minutes] = timePart.split(':').map(Number)
       const localHours = String((hours + 2) % 24).padStart(2, '0')
       form.value.time = `${localHours}:${minutes}`
-      
+
       form.value.service = a.service
       form.value.status = a.status
       form.value.notes = a.notes || ''
@@ -280,13 +275,13 @@ export default {
     })
 
     onMounted(() => {
-      loadFisios()
+      loadUsers()
     })
 
     return {
       form,
       availableSlots,
-      fisios,
+      users,
       isEditing,
       lastCustomId,
       resetForm,
@@ -301,105 +296,90 @@ export default {
 
 <style scoped>
 .form-container {
-  padding: 1.5rem;
-  background: #f8f9fa;
-  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-container h3 {
+  font-size: 1.1rem;
+  color: var(--text-primary);
 }
 
 .custom-id-alert {
-  background: linear-gradient(135deg, #fff5e6, #ffe6e6);
-  border: 2px solid #faad14;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, var(--warning-50), #fff7ed);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: var(--radius-lg);
+  padding: 1.1rem;
   text-align: center;
+  box-shadow: var(--shadow-sm);
 }
 
 .custom-id-alert h4 {
-  margin: 0 0 0.5rem 0;
-  color: #d46b08;
-  font-size: 1.1rem;
+  margin: 0 0 0.4rem;
+  color: var(--warning-700);
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
 }
 
 .custom-id-value {
-  font-family: monospace;
+  font-family: var(--font-mono);
   background: white;
-  border: 1px solid #faad14;
-  padding: 0.75rem;
-  border-radius: 6px;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  padding: 0.7rem;
+  border-radius: var(--radius-sm);
   margin: 0.5rem 0;
-  font-size: 0.95rem;
-  font-weight: bold;
-  color: #222;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
   word-break: break-all;
 }
 
 .custom-id-hint {
-  margin: 0.5rem 0;
-  font-size: 0.9rem;
-  color: #ff4d4f;
-  font-weight: 600;
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  color: var(--warning-700);
+  font-weight: 500;
 }
 
 .btn-small {
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-  background: #faad14;
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.8rem;
+  background: var(--warning-500);
   color: white;
   border: none;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  border-radius: 6px;
-  transition: 0.2s;
+  font-weight: 600;
+  transition: background var(--duration-fast) var(--ease-out);
 }
-
-.btn-small:hover {
-  background: #d46b08;
-}
+.btn-small:hover { background: var(--warning-700); }
 
 .appointment-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
+  gap: 0.35rem;
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
-  padding: 0.75rem;
-  border: 2px solid #e0e0e0;
-  border-radius: 6px;
+.text-danger {
+  color: var(--danger-600);
+  font-size: 0.78rem;
+  margin-top: 0.25rem;
 }
 
 .form-actions {
   display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
 }
 
-.btn {
-  padding: 0.75rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.btn-primary {
-  background: #667eea;
-  color: white;
-}
-
-.btn-danger {
-  background: #dc3545;
-  color: white;
-}
-
-.btn-secondary {
-  background: #6c757d;
-  color: white;
-}
+.form-actions .btn { flex: 1; min-width: 120px; }
 </style>
