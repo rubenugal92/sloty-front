@@ -106,7 +106,9 @@
 
 <script>
 import { ref, computed, watch } from 'vue'
-import { register, updateUser } from '../api/appointments.js'
+import { createUser, updateUser } from '../api/appointments.js'
+import { useAuthStore } from '../stores/auth'
+import { useCompaniesStore } from '../stores/companies'
 
 export default {
   name: 'UserForm',
@@ -116,6 +118,9 @@ export default {
   },
   emits: ['save', 'cancel'],
   setup(props, { emit }) {
+    const auth = useAuthStore()
+    const companies = useCompaniesStore()
+
      const form = ref({
       email: '',
       password: '',
@@ -142,15 +147,16 @@ export default {
         if (isEditing.value) {
           await updateUser(props.editing.id, data)
         } else {
-          await register(
-                data.username,
-                data.name,
-                data.email,
-                data.password,
-                data.specialties, 
-                data.phone,
-                data.type
-                )
+          // Superadmin debe especificar la empresa destino (la seleccionada)
+          if (auth.isSuperAdmin) {
+            if (!companies.selectedCompanyId) {
+              alert('Selecciona una empresa en la barra superior antes de crear un empleado.')
+              return
+            }
+            data.company_id = companies.selectedCompanyId
+          }
+          // Admin normal → el backend usa su req.user.company_id automáticamente
+          await createUser(data)
         }
 
         emit('save')
