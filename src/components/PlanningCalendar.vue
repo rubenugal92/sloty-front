@@ -101,8 +101,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useAuthStore } from '../stores/auth'
+import { useCompaniesStore } from '../stores/companies'
 
 const props = defineProps({
   userId: [Number, String],
@@ -112,7 +113,18 @@ const props = defineProps({
 const { compact } = props
 
 const auth = useAuthStore()
-const isAdmin = computed(() => auth.user?.role === 'admin')
+const companies = useCompaniesStore()
+const isAdmin = computed(() => auth.isAdmin)
+
+const activeCompanyId = computed(() =>
+  auth.isSuperAdmin ? companies.selectedCompanyId : null
+)
+
+const withCompanyParam = (url) => {
+  if (!activeCompanyId.value) return url
+  const sep = url.includes('?') ? '&' : '?'
+  return `${url}${sep}company_id=${activeCompanyId.value}`
+}
 
 /* ---------------- USERS ---------------- */
 const users = ref([])
@@ -192,22 +204,24 @@ const calendarDays = computed(() => {
 /* ---------------- API ---------------- */
 const fetchUsers = async () => {
   if (!isAdmin.value) return
-  const res = await fetch(`${API}/api/users`, {
+  const res = await fetch(withCompanyParam(`${API}/api/users`), {
     headers: { Authorization: `Bearer ${auth.token}` }
   })
   users.value = await res.json()
 }
 
 const fetchPlanning = async () => {
+  if (!selectedUserId.value) return
   const first = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth(), 1)
   const last = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1, 0)
 
-  const res = await fetch(
-    `${API}/api/planning/user/${selectedUserId.value}?start_date=${first.toISOString().split('T')[0]}&end_date=${last.toISOString().split('T')[0]}`,
-    {
-      headers: { Authorization: `Bearer ${auth.token}` }
-    }
+  const url = withCompanyParam(
+    `${API}/api/planning/user/${selectedUserId.value}?start_date=${first.toISOString().split('T')[0]}&end_date=${last.toISOString().split('T')[0]}`
   )
+
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${auth.token}` }
+  })
 
   planning.value = await res.json()
 }
@@ -246,7 +260,8 @@ const savePlanning = async () => {
         end_date: endDate.value,
         type: selectedType.value,
         notes: selectedNotes.value,
-        include_weekends: includeWeekends.value
+        include_weekends: includeWeekends.value,
+        ...(activeCompanyId.value ? { company_id: activeCompanyId.value } : {})
       })
     })
 
@@ -293,10 +308,23 @@ const nextMonth = () => {
 /* ---------------- WATCHERS ---------------- */
 watch(selectedUserId, fetchPlanning)
 watch(currentDate, fetchPlanning)
+watch(() => props.userId, (id) => {
+  selectedUserId.value = id
+})
+
+const onCompanyChanged = () => {
+  fetchUsers()
+  fetchPlanning()
+}
 
 onMounted(() => {
   fetchUsers()
   fetchPlanning()
+  window.addEventListener('company-changed', onCompanyChanged)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('company-changed', onCompanyChanged)
 })
 </script>
 

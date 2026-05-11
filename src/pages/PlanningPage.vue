@@ -54,17 +54,19 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useAuthStore } from '../stores/auth'
+import { useCompaniesStore } from '../stores/companies'
 import PlanningCalendar from '../components/PlanningCalendar.vue'
 
 const auth = useAuthStore()
+const companies = useCompaniesStore()
 const selectedUserId = ref('')
 const users = ref([])
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
-const isAdmin = computed(() => auth.user?.role === 'admin')
+const isAdmin = computed(() => auth.isAdmin)
 
 const getSelectedUserName = () => {
   const user = users.value.find(u => String(u.id) === selectedUserId.value)
@@ -73,10 +75,13 @@ const getSelectedUserName = () => {
 
 const fetchUsers = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/users`, {
-      headers: {
-        'Authorization': `Bearer ${auth.token}`
-      }
+    let url = `${API_BASE_URL}/api/users`
+    if (auth.isSuperAdmin && companies.selectedCompanyId) {
+      url += `?company_id=${companies.selectedCompanyId}`
+    }
+
+    const response = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${auth.token}` }
     })
 
     if (response.ok) {
@@ -88,10 +93,22 @@ const fetchUsers = async () => {
   }
 }
 
+const onCompanyChanged = () => {
+  selectedUserId.value = ''
+  if (isAdmin.value) fetchUsers()
+}
+
 onMounted(() => {
-  if (isAdmin.value) {
-    fetchUsers()
-  }
+  if (isAdmin.value) fetchUsers()
+  window.addEventListener('company-changed', onCompanyChanged)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('company-changed', onCompanyChanged)
+})
+
+watch(() => companies.selectedCompanyId, () => {
+  if (isAdmin.value) fetchUsers()
 })
 </script>
 

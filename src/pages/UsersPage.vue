@@ -47,7 +47,7 @@
           <p class="user-role">
             <strong>Rol:</strong> 
             <span :class="user.role">
-              {{ user.role === 'admin' ? 'Administrador' : 'Usuario' }}
+              {{ user.role === 'superadmin' ? 'Superadmin' : user.role === 'admin' ? 'Administrador' : 'Usuario' }}
             </span>
           </p>
         </div>
