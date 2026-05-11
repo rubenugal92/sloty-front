@@ -41,7 +41,7 @@
         <div v-else class="all-planning-grid">
           <div v-for="user in users" :key="user.id" class="user-planning-card">
             <h3>{{ user.name }}</h3>
-            <PlanningCalendar :user-id="user.id" :key="`all-${user.id}`" />
+            <PlanningCalendar :user-id="user.id" :key="`all-${user.id}`" compact />
           </div>
         </div>
       </div>
@@ -217,8 +217,15 @@ onMounted(() => {
 
 .all-planning-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
+  align-items: stretch;
+}
+
+@media (max-width: 900px) {
+  .all-planning-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .user-planning-card {
@@ -227,13 +234,19 @@ onMounted(() => {
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border: 1px solid #e0e0e0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
 }
 
 .user-planning-card h3 {
-  margin-top: 0;
+  margin: 0;
   color: #333;
   border-bottom: 2px solid #007bff;
   padding-bottom: 10px;
+  font-size: 16px;
 }
 
 .no-access {

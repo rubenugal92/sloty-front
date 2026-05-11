@@ -1,8 +1,8 @@
 <template>
-  <div class="planning-container">
+  <div class="planning-container" :class="{ 'is-compact': compact }">
 
     <!-- ✏️ ADMIN PANEL -->
-    <div v-if="isAdmin" class="admin-panel">
+    <div v-if="isAdmin && !compact" class="admin-panel">
       <h3>✏️ Editar Planning (Rango de Fechas)</h3>
 
       <div class="edit-form">
@@ -80,7 +80,7 @@
               class="planning-item"
               :class="p.type"
             >
-              <span class="user-name">{{ p.user?.name || 'Usuario' }}</span>
+              <span v-if="!compact" class="user-name">{{ p.user?.name || 'Usuario' }}</span>
               <span class="icon">{{ planningLabel[p.type] }}</span>
             </div>
           </div>
@@ -105,8 +105,11 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useAuthStore } from '../stores/auth'
 
 const props = defineProps({
-  userId: [Number, String]
+  userId: [Number, String],
+  compact: { type: Boolean, default: false }
 })
+
+const { compact } = props
 
 const auth = useAuthStore()
 const isAdmin = computed(() => auth.user?.role === 'admin')
@@ -298,11 +301,24 @@ onMounted(() => {
 </script>
 
 <style scoped>
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 .planning-container {
   background: white;
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.planning-container.is-compact {
+  padding: 0;
+  box-shadow: none;
+  background: transparent;
 }
 
 /* ---------------- USER SELECTOR ---------------- */
@@ -437,8 +453,9 @@ onMounted(() => {
 
 .calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7,1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 6px;
+  width: 100%;
 }
 
 .day-header {
@@ -446,20 +463,35 @@ onMounted(() => {
   font-size: 12px;
   font-weight: 600;
   background: #f2f2f2;
-  padding: 6px;
+  padding: 6px 2px;
   border-radius: 4px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ---------------- DAY CELL ---------------- */
 
 .calendar-day {
   min-height: 80px;
+  min-width: 0;
   border: 1px solid #e5e5e5;
   border-radius: 6px;
   padding: 4px;
   background: white;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+.is-compact .calendar-day {
+  min-height: 56px;
+  padding: 3px;
+}
+
+.is-compact .day-header {
+  font-size: 11px;
+  padding: 4px 2px;
 }
 
 .calendar-day.other-month {
@@ -484,6 +516,7 @@ onMounted(() => {
   flex-direction: column;
   gap: 3px;
   margin-top: 3px;
+  min-width: 0;
 }
 
 .planning-item {
@@ -496,6 +529,24 @@ onMounted(() => {
   gap: 4px;
   overflow: hidden;
   white-space: nowrap;
+  min-width: 0;
+}
+
+.planning-item .user-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.planning-item .icon {
+  flex-shrink: 0;
+}
+
+.is-compact .planning-item {
+  justify-content: center;
+  padding: 1px 3px;
+  font-size: 11px;
 }
 
 /* colores por tipo */
