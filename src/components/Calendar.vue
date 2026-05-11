@@ -383,17 +383,6 @@ export default {
   color: var(--primary-700);
   font-weight: 700;
 }
-.day.today .day-number::after {
-  content: "";
-  position: absolute;
-  bottom: 6px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--primary-600);
-}
 
 .day.selected {
   background: linear-gradient(180deg, var(--primary-600), var(--primary-700));
@@ -406,8 +395,6 @@ export default {
   background: rgba(255, 255, 255, 0.25);
   color: white;
 }
-.day.selected.today .day-number::after { background: white; }
-
 .day-number {
   position: relative;
   font-size: 0.9rem;
