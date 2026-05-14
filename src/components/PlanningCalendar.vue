@@ -33,6 +33,17 @@
           </label>
         </div>
 
+        <template v-if="selectedType === 'work'">
+          <div class="form-group">
+            <label>Hora inicio (opcional):</label>
+            <input v-model="startTime" type="time" class="date-input" />
+          </div>
+          <div class="form-group">
+            <label>Hora fin (opcional):</label>
+            <input v-model="endTime" type="time" class="date-input" />
+          </div>
+        </template>
+
         <div class="form-group">
           <label>Notas (opcional):</label>
           <textarea v-model="selectedNotes" class="notes-input" />
@@ -82,6 +93,9 @@
             >
               <span v-if="!compact" class="user-name">{{ p.user?.name || 'Usuario' }}</span>
               <span class="icon">{{ planningLabel[p.type] }}</span>
+              <span v-if="p.type === 'work' && p.start_time" class="hours-tag">
+                {{ p.start_time.slice(0,5) }}{{ p.end_time ? `–${p.end_time.slice(0,5)}` : '' }}
+              </span>
             </div>
           </div>
 
@@ -146,6 +160,8 @@ const endDate = ref('')
 const selectedType = ref('')
 const selectedNotes = ref('')
 const includeWeekends = ref(true)
+const startTime = ref('')
+const endTime = ref('')
 const existingPlanning = ref(null)
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:3000'
@@ -238,10 +254,14 @@ const selectDate = (date) => {
   if (found) {
     selectedType.value = found.type
     selectedNotes.value = found.notes
+    startTime.value = found.start_time ? found.start_time.slice(0, 5) : ''
+    endTime.value = found.end_time ? found.end_time.slice(0, 5) : ''
     existingPlanning.value = found
   } else {
     selectedType.value = ''
     selectedNotes.value = ''
+    startTime.value = ''
+    endTime.value = ''
     existingPlanning.value = null
   }
 }
@@ -261,20 +281,22 @@ const savePlanning = async () => {
         type: selectedType.value,
         notes: selectedNotes.value,
         include_weekends: includeWeekends.value,
+        start_time: selectedType.value === 'work' && startTime.value ? startTime.value : null,
+        end_time:   selectedType.value === 'work' && endTime.value   ? endTime.value   : null,
         ...(activeCompanyId.value ? { company_id: activeCompanyId.value } : {})
       })
     })
 
     if (response.ok) {
-      // Limpiar formulario
       startDate.value = ''
       endDate.value = ''
       selectedType.value = ''
       selectedNotes.value = ''
       includeWeekends.value = true
+      startTime.value = ''
+      endTime.value = ''
       existingPlanning.value = null
 
-      // Recargar planning
       await fetchPlanning()
     } else {
       console.error('Error al guardar planning:', response.statusText)
@@ -575,6 +597,14 @@ onBeforeUnmount(() => {
   justify-content: center;
   padding: 1px 3px;
   font-size: 11px;
+}
+
+.hours-tag {
+  margin-left: auto;
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted, #64748b);
+  flex-shrink: 0;
 }
 
 /* colores por tipo */

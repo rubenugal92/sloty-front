@@ -12,6 +12,16 @@
 
     <form @submit.prevent="submitForm" class="appointment-form">
       <div class="form-group">
+        <label>Nombre del Cliente</label>
+        <input
+          v-model="form.customer_name"
+          type="text"
+          placeholder="Ej: Juan García"
+          :disabled="loading"
+        />
+      </div>
+
+      <div class="form-group">
         <label>Teléfono del Cliente</label>
         <input
           v-model="form.phone"
@@ -140,6 +150,7 @@ export default {
 
     const form = ref({
       phone: '',
+      customer_name: '',
       date: '',
       time: '',
       user_id: '',
@@ -166,6 +177,7 @@ export default {
     const resetForm = () => {
       form.value = {
         phone: '',
+        customer_name: '',
         date: props.selectedDate || '',
         time: '',
         user_id: '',
@@ -202,6 +214,7 @@ export default {
 
       const appointmentData = {
         phone: form.value.phone,
+        customer_name: form.value.customer_name?.trim() || null,
         datetime,
         service: form.value.service,
         status: form.value.status,
@@ -251,6 +264,7 @@ export default {
       if (!a) return
 
       form.value.phone = a.phone
+      form.value.customer_name = a.customer_name || ''
       form.value.date = a.datetime.split('T')[0]
       form.value.user_id = a.user_id || ''
 

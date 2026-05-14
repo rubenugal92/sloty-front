@@ -41,7 +41,21 @@
       >
         <template v-if="cell">
           <span class="day-number">{{ cell }}</span>
-          <span v-if="hasAppointments(cell)" class="day-pill">{{ getAppointmentCount(cell) }}</span>
+
+          <ul v-if="hasAppointments(cell)" class="day-pills">
+            <li
+              v-for="ap in getDayPreview(cell)"
+              :key="ap.id"
+              class="day-pill"
+              :title="`${ap.user_name || 'Empleado'} · ${formatTime(ap.datetime)}`"
+            >
+              <span class="pill-time">{{ formatTime(ap.datetime) }}</span>
+              <span class="pill-name">{{ shortName(ap.user_name) }}</span>
+            </li>
+            <li v-if="getAppointmentCount(cell) > 3" class="day-pill more">
+              +{{ getAppointmentCount(cell) - 3 }}
+            </li>
+          </ul>
         </template>
       </button>
     </div>
@@ -65,8 +79,15 @@
         >
           <div class="appointment-main">
             <div class="appointment-time">{{ formatTime(appointment.datetime) }}</div>
-            <div class="appointment-customer">{{ appointment.customerName }}</div>
-            <div class="appointment-phone">{{ appointment.phone }}</div>
+            <div class="appointment-customer">
+              <span v-if="appointment.customer_name" class="customer-name">{{ appointment.customer_name }}</span>
+              <span class="appointment-phone">{{ appointment.phone }}</span>
+            </div>
+          </div>
+
+          <div v-if="appointment.user_name" class="appointment-pro">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            {{ appointment.user_name }}
           </div>
 
           <div class="appointment-meta">
@@ -187,15 +208,22 @@ export default {
       emit('date-selected', getDateString(day))
     }
 
-    const hasAppointments = (day) => {
-      if (!day) return false
+    const dayAppointments = (day) => {
+      if (!day) return []
       const ds = getDateString(day)
-      return props.appointments.some(a => a.datetime.startsWith(ds))
+      return props.appointments
+        .filter(a => a.datetime.startsWith(ds))
+        .sort((a, b) => new Date(a.datetime) - new Date(b.datetime))
     }
 
-    const getAppointmentCount = (day) => {
-      const ds = getDateString(day)
-      return props.appointments.filter(a => a.datetime.startsWith(ds)).length
+    const hasAppointments = (day) => dayAppointments(day).length > 0
+    const getAppointmentCount = (day) => dayAppointments(day).length
+    const getDayPreview = (day) => dayAppointments(day).slice(0, 3)
+
+    const shortName = (name) => {
+      if (!name) return '—'
+      const parts = name.trim().split(/\s+/)
+      return parts.length > 1 ? `${parts[0]} ${parts[1][0]}.` : parts[0]
     }
 
     const selectedDayData = computed(() => {
@@ -252,6 +280,8 @@ export default {
       selectDay,
       hasAppointments,
       getAppointmentCount,
+      getDayPreview,
+      shortName,
       selectedDayData,
       appointmentsForSelectedDay,
       formatTime,
@@ -345,20 +375,22 @@ export default {
 }
 
 .day {
-  aspect-ratio: 1;
+  min-height: 86px;
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
+  justify-content: flex-start;
   gap: 4px;
-  padding: 0.35rem;
+  padding: 0.4rem 0.45rem;
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--surface);
   color: var(--text-primary);
   cursor: pointer;
   font: inherit;
+  text-align: left;
+  overflow: hidden;
   transition: background var(--duration-fast) var(--ease-out),
               border-color var(--duration-fast) var(--ease-out),
               transform var(--duration-fast) var(--ease-out),
@@ -398,22 +430,70 @@ export default {
 }
 .day-number {
   position: relative;
-  font-size: 0.9rem;
+  font-size: 0.78rem;
   line-height: 1;
+  font-weight: 600;
+  align-self: flex-end;
+  color: var(--text-secondary);
+}
+
+.day.today .day-number,
+.day.selected .day-number { color: inherit; }
+
+.day-pills {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .day-pill {
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: 999px;
-  background: var(--primary-100);
-  color: var(--primary-700);
-  font-size: 0.7rem;
-  font-weight: 700;
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  gap: 4px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--primary-50);
+  color: var(--primary-700);
+  font-size: 0.65rem;
+  font-weight: 600;
+  line-height: 1.3;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.pill-time {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.pill-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.day-pill.more {
+  background: var(--surface-subtle);
+  color: var(--text-muted);
+  font-size: 0.6rem;
   justify-content: center;
+}
+
+.day.selected .day-pill {
+  background: rgba(255, 255, 255, 0.22);
+  color: white;
+}
+.day.selected .day-pill.more {
+  background: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 /* ---------- list ---------- */
@@ -506,17 +586,46 @@ export default {
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
 }
+
 .appointment-customer {
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  font-family: var(--font-mono);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  text-align: right;
+  min-width: 0;
+}
+
+.customer-name {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.88rem;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .appointment-phone {
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   font-family: var(--font-mono);
 }
+
+.appointment-pro {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 0.75rem;
+  padding: 3px 8px;
+  background: var(--primary-50);
+  color: var(--primary-700);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  width: fit-content;
+}
+.appointment-pro svg { flex-shrink: 0; }
 
 
 .appointment-meta {
@@ -595,9 +704,13 @@ export default {
 .no-appointments p { color: var(--text-muted); font-size: 0.9rem; }
 .no-appointments.faint { padding: 1.5rem 1rem; }
 
-@media (max-width: 540px) {
-  .day-number { font-size: 0.8rem; }
-  .day { padding: 0.25rem; }
-  .day-pill { min-width: 16px; height: 16px; font-size: 0.65rem; }
+@media (max-width: 700px) {
+  .day { min-height: 70px; padding: 0.3rem; }
+  .pill-name { display: none; }
+  .day-pill { justify-content: center; padding: 1px 3px; }
+}
+@media (max-width: 480px) {
+  .day { min-height: 56px; }
+  .day-number { font-size: 0.72rem; }
 }
 </style>
