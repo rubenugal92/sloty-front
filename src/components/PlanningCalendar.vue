@@ -402,6 +402,15 @@ onBeforeUnmount(() => {
   margin-bottom: 20px;
 }
 
+.admin-panel .form-group label,
+.admin-panel .checkbox-group label {
+  color: white;
+}
+
+.admin-panel label {
+  color: white;
+}
+
 .edit-form {
   display: grid;
   grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
