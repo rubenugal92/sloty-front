@@ -81,7 +81,7 @@
             <div class="appointment-time">{{ formatTime(appointment.datetime) }}</div>
             <div class="appointment-customer">
               <span v-if="appointment.customer_name" class="customer-name"> <strong>Cliente: </strong>{{ appointment.customer_name }}</span>
-              <span class="appointment-phone"> <strong>Tlf cliente: </strong> {{ appointment.phone }}</span>
+              <span class="appointment-phone"> <strong>Teléfono cliente: </strong> {{ appointment.phone }}</span>
             </div>
           </div>
 
@@ -98,7 +98,7 @@
           </div>
 
           <div v-if="appointment.notes" class="appointment-notes">
-            <strong>Notas:</strong> {{ appointment.notes }}
+            <strong>Notas del cliente:</strong> {{ appointment.notes }}
           </div>
 
           <div v-if="appointment.custom_id" class="appointment-id">
