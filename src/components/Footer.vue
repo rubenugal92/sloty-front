@@ -32,7 +32,7 @@
           <h3>Contacto</h3>
           <ul class="footer-links">
             <li>
-              <a href="mailto:rubenugal@gmail.com">rubenugal@gmail.com</a>
+              <a href="mailto:midgardit@midgard-it.com">midgardit@midgard-it.com</a>
             </li>
             <li>
               <a href="tel:+34123456789">+34 697519399</a>

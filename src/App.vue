@@ -19,7 +19,17 @@ import Footer from './components/Footer.vue'
 import CookieConsent from './components/CookieConsent.vue'
 
 const route = useRoute()
-const showNavbar = computed(() => route.path !== '/login')
+
+const hiddenNavbarRoutes = [
+  '/login',
+  '/privacy-policy',
+  '/cookies-policy',
+  '/terms-conditions'
+]
+
+const showNavbar = computed(() => {
+  return !hiddenNavbarRoutes.includes(route.path)
+})
 </script>
 
 <style>

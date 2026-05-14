@@ -8,7 +8,7 @@
         <h2>1. Responsable del Tratamiento</h2>
         <p>
           Bot Manager es el responsable del tratamiento de tus datos personales. 
-          Para consultas sobre privacidad, contacta con: info@fisiocom.com
+          Para consultas sobre privacidad, contacta con: midgardit@midgard-it.com
         </p>
       </section>
 
@@ -16,10 +16,9 @@
         <h2>2. Datos que Recopilamos</h2>
         <p>Podemos recopilar los siguientes tipos de datos:</p>
         <ul>
-          <li><strong>Datos de Identificación:</strong> Nombre, apellidos, email, teléfono</li>
-          <li><strong>Datos de Ubicación:</strong> Dirección</li>
-          <li><strong>Datos de Citas:</strong> Historial de citas, servicios solicitados</li>
-          <li><strong>Datos Técnicos:</strong> Dirección IP, tipo de navegador, páginas visitadas</li>
+          <li><strong>Datos de Identificación:</strong> Nombre, email y teléfono</li>
+          <li><strong>Datos de Citas:</strong> Historial de citas y servicios solicitados</li>
+          <li><strong>Datos Técnicos:</strong> Dirección IP, navegador y registros de acceso</li>
         </ul>
       </section>
 
@@ -47,7 +46,7 @@
           <li><strong>Oposición:</strong> Oponerte al tratamiento de tus datos</li>
         </ul>
         <p>
-          Para ejercer estos derechos, envía una solicitud a: info@fisiocom.com
+          Para ejercer estos derechos, envía una solicitud a: midgardit@midgard-it.com
         </p>
       </section>
 
@@ -75,6 +74,50 @@
           Los cambios serán notificados a través de la plataforma.
         </p>
       </section>
+      <section>
+  <h2>8. Uso de WhatsApp Business API</h2>
+  <p>
+    Nuestra plataforma puede utilizar la API oficial de WhatsApp Business proporcionada por Meta
+    para gestionar comunicaciones y reservas de citas.
+  </p>
+
+  <p>
+    Al utilizar este canal de comunicación, aceptas que parte de la información intercambiada
+    pueda ser procesada por Meta Platforms Inc. según sus propias políticas de privacidad.
+  </p>
+
+  <p>
+    Recomendamos consultar la política de privacidad de WhatsApp y Meta para más información
+    sobre el tratamiento de datos realizado por dichos servicios.
+  </p>
+</section>
+<section>
+  <h2>9. Encargado del Tratamiento</h2>
+
+  <p>
+    Bot Manager actúa como encargado del tratamiento de datos en nombre de los negocios
+    que utilizan la plataforma para gestionar sus citas y clientes.
+  </p>
+
+  <p>
+    Midgard IT es responsable de la plataforma Bot Manager.
+    Para consultas relacionadas con privacidad y protección de datos,
+    puedes contactar en: midgardit@midgard-it.com
+  </p>
+</section>
+<section>
+  <h2>10. Almacenamiento y Seguridad</h2>
+
+  <p>
+    Los datos se almacenan en infraestructuras seguras proporcionadas por terceros especializados.
+    Aplicamos medidas técnicas y organizativas razonables para proteger la información
+    frente a accesos no autorizados, pérdida o alteración.
+  </p>
+
+  <p>
+    Las comunicaciones entre el usuario y la plataforma se realizan mediante conexiones seguras (HTTPS).
+  </p>
+</section>
 
       <div class="back-link">
         <router-link to="/">← Volver al inicio</router-link>

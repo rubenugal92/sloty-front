@@ -98,7 +98,7 @@
       <section>
         <h2>10. Contacto</h2>
         <p>
-          Para preguntas sobre estos términos, contacta a: <strong>info@fisiocom.com</strong>
+          Para preguntas sobre estos términos, contacta a: <strong>midgardit@midgard-it.com</strong>
         </p>
       </section>
 
