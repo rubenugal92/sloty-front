@@ -106,6 +106,7 @@
 
 <script>
 import { ref, computed, watch } from 'vue'
+import Swal from 'sweetalert2'
 import { createUser, updateUser } from '../api/appointments.js'
 import { useAuthStore } from '../stores/auth'
 import { useCompaniesStore } from '../stores/companies'
@@ -150,7 +151,11 @@ export default {
           // Superadmin debe especificar la empresa destino (la seleccionada)
           if (auth.isSuperAdmin) {
             if (!companies.selectedCompanyId) {
-              alert('Selecciona una empresa en la barra superior antes de crear un empleado.')
+              await Swal.fire({
+                icon: 'warning',
+                title: 'Atención',
+                text: 'Selecciona una empresa en la barra superior antes de crear un empleado.'
+              })
               return
             }
             data.company_id = companies.selectedCompanyId
@@ -163,7 +168,11 @@ export default {
         resetForm()
       } catch (error) {
         console.error('Error saving user:', error)
-        alert('Error al guardar: ' + (error.response?.data?.error || error.message))
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Error al guardar: ' + (error.response?.data?.error || error.message)
+        })
       } finally {
         loading.value = false
       }

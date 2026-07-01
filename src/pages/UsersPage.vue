@@ -67,6 +67,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import Swal from 'sweetalert2'
 import { useUsersStore } from '../stores/users'
 import UserForm from '../components/UserForm.vue'
 
@@ -90,9 +91,23 @@ const handleSave = async () => {
 }
 
 const handleDelete = async (id) => {
-  if (confirm('¿Estás seguro de que deseas eliminar este empleado?')) {
+  const result = await Swal.fire({
+    title: 'Eliminar empleado',
+    text: '¿Estás seguro de que deseas eliminar este empleado?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar'
+  })
+
+  if (result.isConfirmed) {
     await store.remove(id)
     await store.fetch()
+    await Swal.fire({
+      icon: 'success',
+      title: 'Empleado eliminado',
+      text: 'El empleado ha sido eliminado correctamente.'
+    })
   }
 }
 

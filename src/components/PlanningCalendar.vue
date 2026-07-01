@@ -57,6 +57,10 @@
           <button v-if="existingPlanning" @click="deletePlanningEntry" class="btn btn-danger">
             🗑️ Eliminar
           </button>
+
+          <button @click="deletePlanningRange" class="btn btn-danger" :disabled="!selectedUserId || !startDate || !endDate">
+            🗑️ Eliminar Rango
+          </button>
         </div>
       </div>
     </div>
@@ -116,6 +120,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import Swal from 'sweetalert2'
 import { useAuthStore } from '../stores/auth'
 import { useCompaniesStore } from '../stores/companies'
 
@@ -307,12 +312,71 @@ const savePlanning = async () => {
 }
 
 const deletePlanningEntry = async () => {
+  if (!existingPlanning.value) return
+
   await fetch(`${API}/api/planning/${existingPlanning.value.id}`, {
     method: 'DELETE',
     headers: { Authorization: `Bearer ${auth.token}` }
   })
 
+  startDate.value = ''
+  endDate.value = ''
+  selectedType.value = ''
+  selectedNotes.value = ''
+  startTime.value = ''
+  endTime.value = ''
+  existingPlanning.value = null
+
   await fetchPlanning()
+}
+
+const deletePlanningRange = async () => {
+  if (!selectedUserId.value || !startDate.value || !endDate.value) return
+
+  const result = await Swal.fire({
+    title: 'Eliminar rango de planning',
+    text: `¿Eliminar todos los plannings de ${startDate.value} a ${endDate.value} para este usuario?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar'
+  })
+
+  if (!result.isConfirmed) return
+
+  const url = withCompanyParam(
+    `${API}/api/planning/range?user_id=${selectedUserId.value}&start_date=${startDate.value}&end_date=${endDate.value}`
+  )
+
+  const response = await fetch(url, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${auth.token}` }
+  })
+
+  if (response.ok) {
+    startDate.value = ''
+    endDate.value = ''
+    selectedType.value = ''
+    selectedNotes.value = ''
+    includeWeekends.value = true
+    startTime.value = ''
+    endTime.value = ''
+    existingPlanning.value = null
+
+    await fetchPlanning()
+    await Swal.fire({
+      icon: 'success',
+      title: 'Rango eliminado',
+      text: 'Los plannings han sido eliminados correctamente.'
+    })
+  } else {
+    console.error('Error al eliminar rango de planning:', response.statusText)
+    await Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'No se pudo eliminar el rango de planning.'
+    })
+  }
 }
 
 const previousMonth = () => {

@@ -139,6 +139,7 @@
 
 <script>
 import { ref, computed, watch, onMounted } from 'vue'
+import Swal from 'sweetalert2'
 import { useCompaniesStore } from '../stores/companies'
 import { createAppointment, updateAppointment as updateAppointmentAPI, deleteAppointment as deleteAppointmentAPI, getAvailableSlots, getAvailableUsers, getAllUsers } from '../api/appointments.js'
 
@@ -276,14 +277,22 @@ export default {
 
       } catch (e) {
         console.error(e)
-        alert('Error: ' + (e.response?.data?.error || e.message))
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: e.response?.data?.error || e.message
+        })
       }
     }
 
-    const copyToClipboard = () => {
+    const copyToClipboard = async () => {
       if (lastCustomId.value) {
         navigator.clipboard.writeText(lastCustomId.value)
-        alert('✅ ID copiado al portapapeles')
+        await Swal.fire({
+          icon: 'success',
+          title: 'Copiado',
+          text: 'ID copiado al portapapeles'
+        })
       }
     }
 
@@ -295,7 +304,11 @@ export default {
         resetForm()
       } catch (e) {
         console.error(e)
-        alert('Error: ' + (e.response?.data?.error || e.message))
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: e.response?.data?.error || e.message
+        })
       }
     }
 
