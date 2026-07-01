@@ -342,6 +342,7 @@ export default {
       lastCustomId,
       resetForm,
       updateAvailableSlots,
+      handleDateChange,
       submitForm,
       handleDelete,
       copyToClipboard
