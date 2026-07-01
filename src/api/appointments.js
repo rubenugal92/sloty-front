@@ -92,6 +92,13 @@ export const getAvailableSlots = async (date, userId = null) => {
   return data.slots
 }
 
+export const getAvailableUsers = async (date, companyId = null) => {
+  let url = `/users/available?date=${date}`
+  if (companyId) url += `&company_id=${companyId}`
+  const { data } = await api.get(url)
+  return data
+}
+
 export const createAppointment = async (appointmentData) => {
   const { data } = await api.post('/appointments', appointmentData)
   return data

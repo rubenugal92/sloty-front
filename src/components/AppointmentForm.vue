@@ -33,32 +33,35 @@
       </div>
 
       <div class="form-group">
-        <label>Empleado</label>
-        <select
-          v-model="form.user_id"
-          required
-          :disabled="loading || users.length === 0"
-          @change="updateAvailableSlots"
-        >
-          <option value="">Selecciona un empleado</option>
-          <option v-for="employee in users" :key="employee.id" :value="employee.id">
-            {{ employee.name }}{{ employee.specialties ? ` (${employee.specialties})` : '' }}
-          </option>
-        </select>
-        <small v-if="users.length === 0" class="text-danger">
-          No hay empleados disponibles
-        </small>
-      </div>
-
-      <div class="form-group">
         <label>Fecha</label>
         <input
           v-model="form.date"
           type="date"
           required
           :disabled="loading"
-          @change="updateAvailableSlots"
+          @change="handleDateChange"
         />
+      </div>
+
+      <div class="form-group">
+        <label>Empleado</label>
+        <select
+          v-model="form.user_id"
+          required
+          :disabled="loading || !form.value.date || users.length === 0"
+          @change="updateAvailableSlots"
+        >
+          <option value="">Selecciona una fecha primero</option>
+          <option v-for="employee in users" :key="employee.id" :value="employee.id">
+            {{ employee.name }}{{ employee.specialties ? ` (${employee.specialties})` : '' }}
+          </option>
+        </select>
+        <small v-if="!form.value.date" class="text-muted">
+          Elige primero la fecha para ver empleados disponibles.
+        </small>
+        <small v-else-if="users.length === 0" class="text-danger">
+          No hay empleados disponibles para esa fecha.
+        </small>
       </div>
 
       <div class="form-group">
@@ -136,7 +139,8 @@
 
 <script>
 import { ref, computed, watch, onMounted } from 'vue'
-import { createAppointment, updateAppointment as updateAppointmentAPI, deleteAppointment as deleteAppointmentAPI, getAvailableSlots, getAllUsers } from '../api/appointments.js'
+import { useCompaniesStore } from '../stores/companies'
+import { createAppointment, updateAppointment as updateAppointmentAPI, deleteAppointment as deleteAppointmentAPI, getAvailableSlots, getAvailableUsers, getAllUsers } from '../api/appointments.js'
 
 export default {
   name: 'AppointmentForm',
@@ -147,6 +151,7 @@ export default {
   },
   emits: ['save', 'delete', 'clear'],
   setup(props, { emit }) {
+    const companies = useCompaniesStore()
 
     const form = ref({
       phone: '',
@@ -170,6 +175,21 @@ export default {
         users.value = await getAllUsers()
       } catch (e) {
         console.error('Error loading users:', e)
+        users.value = []
+      }
+    }
+
+    const loadAvailableUsers = async (date) => {
+      if (!date) {
+        users.value = []
+        return
+      }
+
+      try {
+        users.value = await getAvailableUsers(date, companies.selectedCompanyId)
+        form.value.user_id = ''
+      } catch (e) {
+        console.error('Error loading available users:', e)
         users.value = []
       }
     }
@@ -201,6 +221,12 @@ export default {
         console.error('Error fetching slots:', e)
         availableSlots.value = []
       }
+    }
+
+    const handleDateChange = async () => {
+      await loadAvailableUsers(form.value.date)
+      availableSlots.value = []
+      form.value.time = ''
     }
 
     const submitForm = async () => {
@@ -260,7 +286,7 @@ export default {
       }
     }
 
-    watch(() => props.appointment, (a) => {
+    watch(() => props.appointment, async (a) => {
       if (!a) return
 
       form.value.phone = a.phone
@@ -278,18 +304,21 @@ export default {
       form.value.status = a.status
       form.value.notes = a.notes || ''
 
+      await loadAvailableUsers(form.value.date)
       updateAvailableSlots()
     }, { deep: true })
 
-    watch(() => props.selectedDate, (d) => {
+    watch(() => props.selectedDate, async (d) => {
       if (d && !props.appointment) {
         form.value.date = d
-        updateAvailableSlots()
+        await loadAvailableUsers(d)
       }
     })
 
     onMounted(() => {
-      loadUsers()
+      if (isEditing.value) {
+        loadUsers()
+      }
     })
 
     return {
