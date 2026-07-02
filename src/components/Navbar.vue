@@ -52,7 +52,9 @@
           @click="handleConnectWhatsApp"
           :disabled="connecting"
         >
-        <span class="nav-icon green">📞</span>
+       <span class="nav-icon">
+        <img src="../../img/logoWhatsapp.png" alt="WhatsApp" class="whatsapp-icon" />
+      </span>
           <span>{{ connecting ? 'Conectando…' : 'Activar bot WhatsApp' }}</span>
         </button>
       </nav>
@@ -455,5 +457,16 @@ onMounted(async () => {
   padding: 0.5rem 0.9rem;
   border-radius: 999px;
   cursor: pointer;
+}
+.whatsapp-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  filter: none;
+  transition: transform 0.15s ease;
+}
+
+.nav-button:hover .whatsapp-icon {
+  transform: scale(1.1);
 }
 </style>
