@@ -70,10 +70,13 @@
             <span v-else class="waba-ko">— sin configurar</span>
           </li>
           <li v-if="c.whatsapp_display_number" class="muted">{{ c.whatsapp_display_number }}</li>
+          <li class="status-row">
+            <span :class="['status-pill', connectionStateClass(c)]">{{ connectionLabel(c) }}</span>
+          </li>
         </ul>
         <div class="company-actions">
           <button class="btn btn-secondary btn-sm" @click="edit(c)">Editar</button>
-          <button class="btn btn-primary btn-sm" @click="connect(c)">Conectar WhatsApp</button>
+          <button class="btn btn-primary btn-sm" @click="connect(c)">{{ connectButtonLabel(c) }}</button>
         </div>
       </article>
     </div>
@@ -101,6 +104,24 @@ const empty = () => ({
 
 const startCreate = () => { error.value = ''; editing.value = empty() }
 const edit = (c) => { error.value = ''; editing.value = { ...empty(), ...c } }
+
+const connectionLabel = (company) => {
+  if (company.whatsapp_phone_number_id) return `🟢 Conectado${company.whatsapp_display_number ? ` al ${company.whatsapp_display_number}` : ''}`
+  if (company.whatsapp_connection_status === 'reconnect') return '🟡 Requiere reconexión'
+  return '🔴 No conectado'
+}
+
+const connectionStateClass = (company) => {
+  if (company.whatsapp_phone_number_id) return 'connected'
+  if (company.whatsapp_connection_status === 'reconnect') return 'reconnect'
+  return 'disconnected'
+}
+
+const connectButtonLabel = (company) => {
+  if (company.whatsapp_phone_number_id) return 'Cambiar cuenta de WhatsApp'
+  if (company.whatsapp_connection_status === 'reconnect') return 'Reconectar WhatsApp'
+  return 'Conectar WhatsApp'
+}
 
 const connect = async (company) => {
   try {
@@ -163,6 +184,11 @@ onMounted(() => {
 .code-pill { background: var(--primary-50); color: var(--primary-700); padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
 .info { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.85rem; color: var(--text-secondary); }
 .info .muted { color: var(--text-muted); font-size: 0.78rem; }
+.status-row { margin-top: 0.15rem; }
+.status-pill { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.74rem; font-weight: 700; }
+.status-pill.connected { background: #dcfce7; color: #166534; }
+.status-pill.reconnect { background: #fef3c7; color: #92400e; }
+.status-pill.disconnected { background: #fee2e2; color: #991b1b; }
 .waba-ok { color: var(--success-700); font-weight: 600; }
 .waba-ko { color: var(--text-muted); }
 
