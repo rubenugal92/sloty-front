@@ -165,4 +165,10 @@ export const updateCompany = async (id, companyData) => {
   return data
 }
 
+export const connectWhatsApp = async (companyId = null) => {
+  const query = companyId ? `?company_id=${companyId}` : ''
+  const { data } = await api.get(`/whatsapp/oauth/connect${query}`)
+  return data
+}
+
 export default api

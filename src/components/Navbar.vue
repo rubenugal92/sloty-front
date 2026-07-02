@@ -44,6 +44,16 @@
           <span class="nav-icon">🏢</span>
           <span>Empresas</span>
         </button>
+
+        <button
+          v-if="canConnectWhatsapp"
+          class="nav-button"
+          @click="handleConnectWhatsApp"
+          :disabled="connecting"
+        >
+          <span class="nav-icon">💬</span>
+          <span>{{ connecting ? 'Conectando…' : 'Conectar WhatsApp' }}</span>
+        </button>
       </nav>
 
       <div class="nav-user">
@@ -73,7 +83,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { getUser, logout } from '../api/appointments.js'
+import { getUser, logout, connectWhatsApp } from '../api/appointments.js'
 import { useAuthStore } from '../stores/auth'
 import { useCompaniesStore } from '../stores/companies'
 import { useAppointmentsStore } from '../stores/appointments'
@@ -89,6 +99,8 @@ const users = useUsersStore()
 
 const user = ref(null)
 const isAdmin = computed(() => auth.isAdmin)
+const canConnectWhatsapp = computed(() => auth.isAdmin || auth.isSuperAdmin)
+const connecting = ref(false)
 
 const roleLabel = computed(() => {
   if (auth.user?.role === 'superadmin') return 'Superadmin'
@@ -114,6 +126,20 @@ const handleLogout = () => {
   logout()
   auth.logout()
   router.push('/login')
+}
+
+const handleConnectWhatsApp = async () => {
+  try {
+    connecting.value = true
+    const companyId = companies.selectedCompanyId || auth.user?.company_id
+    const data = await connectWhatsApp(companyId)
+    window.location.href = data.url
+  } catch (error) {
+    console.error(error)
+    alert(error.response?.data?.error || error.message || 'No se pudo iniciar la conexión con WhatsApp')
+  } finally {
+    connecting.value = false
+  }
 }
 
 onMounted(async () => {

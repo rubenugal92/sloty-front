@@ -71,7 +71,10 @@
           </li>
           <li v-if="c.whatsapp_display_number" class="muted">{{ c.whatsapp_display_number }}</li>
         </ul>
-        <button class="btn btn-secondary btn-sm" @click="edit(c)">Editar</button>
+        <div class="company-actions">
+          <button class="btn btn-secondary btn-sm" @click="edit(c)">Editar</button>
+          <button class="btn btn-primary btn-sm" @click="connect(c)">Conectar WhatsApp</button>
+        </div>
       </article>
     </div>
   </div>
@@ -79,9 +82,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useCompaniesStore } from '../stores/companies'
-import { createCompany, updateCompany } from '../api/appointments.js'
+import { createCompany, updateCompany, connectWhatsApp } from '../api/appointments.js'
 
+const route = useRoute()
 const store = useCompaniesStore()
 const companies = computed(() => store.items)
 
@@ -96,6 +101,15 @@ const empty = () => ({
 
 const startCreate = () => { error.value = ''; editing.value = empty() }
 const edit = (c) => { error.value = ''; editing.value = { ...empty(), ...c } }
+
+const connect = async (company) => {
+  try {
+    const data = await connectWhatsApp(company.id)
+    window.location.href = data.url
+  } catch (e) {
+    error.value = e.response?.data?.error || e.message || 'Error iniciando la conexión'
+  }
+}
 
 const save = async () => {
   error.value = ''
@@ -118,7 +132,14 @@ const save = async () => {
   }
 }
 
-onMounted(() => store.loadCompanies())
+onMounted(() => {
+  store.loadCompanies()
+  if (route.query.whatsapp === 'connected') {
+    error.value = 'WhatsApp conectado correctamente.'
+  } else if (route.query.whatsapp === 'error') {
+    error.value = route.query.message || 'No se pudo completar la conexión con WhatsApp.'
+  }
+})
 </script>
 
 <style scoped>
@@ -137,6 +158,7 @@ onMounted(() => store.loadCompanies())
 .companies-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
 .company-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; box-shadow: var(--shadow-sm); }
 .company-card header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
+.company-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .company-card h3 { margin: 0; font-size: 1.05rem; }
 .code-pill { background: var(--primary-50); color: var(--primary-700); padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
 .info { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.85rem; color: var(--text-secondary); }

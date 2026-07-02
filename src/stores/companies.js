@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { useAuthStore } from './auth'
-import { getAllCompanies } from '../api/appointments'
+import { getAllCompanies, getCompanyById } from '../api/appointments'
 
 export const useCompaniesStore = defineStore('companies', {
   state: () => ({
@@ -21,11 +21,16 @@ export const useCompaniesStore = defineStore('companies', {
         this.loading = true
         const auth = useAuthStore()
         
-        // Solo superadmin puede ver todas las empresas
         if (auth.user?.role === 'superadmin') {
           this.items = await getAllCompanies()
-          
-          // Si no hay empresa seleccionada, seleccionar la primera
+
+          if (!this.selectedCompanyId && this.items.length > 0) {
+            this.selectCompany(this.items[0].id)
+          }
+        } else if (auth.user?.role === 'admin' && auth.user?.company_id) {
+          const company = await getCompanyById(auth.user.company_id)
+          this.items = company ? [company] : []
+
           if (!this.selectedCompanyId && this.items.length > 0) {
             this.selectCompany(this.items[0].id)
           }

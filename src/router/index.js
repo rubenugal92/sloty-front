@@ -35,7 +35,7 @@ const routes = [
   {
     path: '/empresas',
     component: CompaniesPage,
-    meta: { requiresAuth: true, roles: ['superadmin'] }
+    meta: { requiresAuth: true, roles: ['admin', 'superadmin'] }
   },
 
   { path: '/privacy-policy', component: PrivacyPolicyPage },
