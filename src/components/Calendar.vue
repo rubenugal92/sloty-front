@@ -327,6 +327,7 @@ export default {
 }
 
 .calendar.fullscreen .calendar-grid {
+  flex: 3;
   gap: 0.5rem;
 }
 
