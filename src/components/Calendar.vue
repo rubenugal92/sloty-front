@@ -1,74 +1,76 @@
 <template>
-  <div class="calendar">
-    <!-- HEADER -->
-    <header class="calendar-header">
-      <button @click="previousMonth" class="nav-btn" aria-label="Mes anterior">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
+  <div class="calendar" :class="{ fullscreen: isFullscreen }">
+    <div class="calendar-grid">
+      <!-- HEADER -->
+      <header class="calendar-header">
+        <button @click="previousMonth" class="nav-btn" aria-label="Mes anterior">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
 
-      <div class="calendar-title">
-        <span class="title-month">{{ monthLabel }}</span>
-        <span class="title-year">{{ yearLabel }}</span>
+        <div class="calendar-title">
+          <span class="title-month">{{ monthLabel }}</span>
+          <span class="title-year">{{ yearLabel }}</span>
+        </div>
+
+        <div class="header-actions">
+          <button @click="goToToday" class="btn btn-ghost btn-sm">Hoy</button>
+          <button @click="nextMonth" class="nav-btn" aria-label="Mes siguiente">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- WEEKDAYS -->
+      <div class="weekdays">
+        <div v-for="day in weekDays" :key="day" class="weekday">{{ day }}</div>
       </div>
 
-      <div class="header-actions">
-        <button @click="goToToday" class="btn btn-ghost btn-sm">Hoy</button>
-        <button @click="nextMonth" class="nav-btn" aria-label="Mes siguiente">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      <!-- GRID -->
+      <div class="days-grid">
+        <button
+          v-for="(cell, index) in calendarDays"
+          :key="index"
+          type="button"
+          :class="['day', {
+            empty: !cell,
+            today: isToday(cell),
+            selected: isSelected(cell),
+            'has-appointments': hasAppointments(cell)
+          }]"
+          :disabled="!cell"
+          @click="cell && selectDay(cell)"
+        >
+          <template v-if="cell">
+            <span class="day-number">{{ cell }}</span>
+
+            <ul v-if="hasAppointments(cell)" class="day-pills">
+              <li
+                v-for="ap in getDayPreview(cell)"
+                :key="ap.id"
+                class="day-pill"
+                :title="`${ap.user_name || 'Empleado'} · ${formatTime(ap.datetime)}`"
+              >
+                <span class="pill-time">{{ formatTime(ap.datetime) }}</span>
+                <span class="pill-name">{{ shortName(ap.user_name) }}</span>
+              </li>
+              <li v-if="getAppointmentCount(cell) > 3" class="day-pill more">
+                +{{ getAppointmentCount(cell) - 3 }}
+              </li>
+            </ul>
+          </template>
         </button>
       </div>
-    </header>
 
-    <!-- WEEKDAYS -->
-    <div class="weekdays">
-      <div v-for="day in weekDays" :key="day" class="weekday">{{ day }}</div>
-    </div>
-
-    <!-- GRID -->
-    <div class="days-grid">
+      <!-- FULLSCREEN BUTTON -->
       <button
-        v-for="(cell, index) in calendarDays"
-        :key="index"
-        type="button"
-        :class="['day', {
-          empty: !cell,
-          today: isToday(cell),
-          selected: isSelected(cell),
-          'has-appointments': hasAppointments(cell)
-        }]"
-        :disabled="!cell"
-        @click="cell && selectDay(cell)"
+        class="fullscreen-toggle"
+        @click="$emit('toggle-fullscreen')"
+        :title="isFullscreen ? 'Salir de pantalla completa' : 'Ampliar'"
       >
-        <template v-if="cell">
-          <span class="day-number">{{ cell }}</span>
-
-          <ul v-if="hasAppointments(cell)" class="day-pills">
-            <li
-              v-for="ap in getDayPreview(cell)"
-              :key="ap.id"
-              class="day-pill"
-              :title="`${ap.user_name || 'Empleado'} · ${formatTime(ap.datetime)}`"
-            >
-              <span class="pill-time">{{ formatTime(ap.datetime) }}</span>
-              <span class="pill-name">{{ shortName(ap.user_name) }}</span>
-            </li>
-            <li v-if="getAppointmentCount(cell) > 3" class="day-pill more">
-              +{{ getAppointmentCount(cell) - 3 }}
-            </li>
-          </ul>
-        </template>
+        <i v-if="isFullscreen" class="ri-fullscreen-exit-line"></i>
+        <i v-else class="ri-fullscreen-line"></i>
       </button>
     </div>
-
-    <!-- FULLSCREEN BUTTON -->
-    <button
-      class="fullscreen-toggle"
-      @click="$emit('toggle-fullscreen')"
-      :title="isFullscreen ? 'Salir de pantalla completa' : 'Ampliar'"
-    >
-      <i v-if="isFullscreen" class="ri-fullscreen-exit-line"></i>
-      <i v-else class="ri-fullscreen-line"></i>
-    </button>
 
     <!-- APPOINTMENTS -->
     <div class="appointments-list">
