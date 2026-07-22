@@ -14,7 +14,9 @@ export const useNotificationsStore = defineStore('notifications', {
     initWebSocket() {
       const auth = useAuthStore()
       if (!auth.isAuthenticated || !auth.user) {
-        console.log('❌ WebSocket: Not authenticated or no user');
+        console.log('❌ WebSocket: Not authenticated or no user. Retrying in 2s...');
+        // Reintentar si no está autenticado
+        setTimeout(() => this.initWebSocket(), 2000)
         return
       }
 
@@ -51,6 +53,14 @@ export const useNotificationsStore = defineStore('notifications', {
         this.ws.onerror = (error) => {
           console.error('🔴 WebSocket error:', error)
           this.isConnected = false
+        }
+
+        // Handle ping/pong heartbeat (Render requirement)
+        this.ws.onmessage = (event) => {
+          // ws library handles pong automatically, but if needed:
+          if (event.type === 'ping') {
+            console.log('📡 Server ping received, sending pong...')
+          }
         }
       } catch (err) {
         console.error('Error creating WebSocket:', err)
