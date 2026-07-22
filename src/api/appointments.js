@@ -92,9 +92,10 @@ export const getAvailableSlots = async (date, userId = null) => {
   return data.slots
 }
 
-export const getAvailableUsers = async (date, companyId = null) => {
+export const getAvailableUsers = async (date, companyId = null, time = null) => {
   let url = `/users/available?date=${date}`
   if (companyId) url += `&company_id=${companyId}`
+  if (time) url += `&time=${time}`
   const { data } = await api.get(url)
   return data
 }
