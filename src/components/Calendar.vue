@@ -448,9 +448,9 @@ export default {
 }
 
 .calendar.fullscreen .day {
-  min-height: 65px;
-  padding: 0.3rem 0.35rem;
-  gap: 3px;
+  min-height: 120px;
+  padding: 0.6rem 0.7rem;
+  gap: 5px;
 }
 
 .day:hover:not(.empty):not(:disabled) {
@@ -493,6 +493,11 @@ export default {
   color: var(--text-secondary);
 }
 
+.calendar.fullscreen .day-number {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
 .day.today .day-number,
 .day.selected .day-number { color: inherit; }
 
@@ -504,6 +509,10 @@ export default {
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+}
+
+.calendar.fullscreen .day-pills {
+  gap: 3px;
 }
 
 .day-pill {
@@ -519,6 +528,11 @@ export default {
   line-height: 1.3;
   min-width: 0;
   overflow: hidden;
+}
+
+.calendar.fullscreen .day-pill {
+  padding: 3px 7px;
+  font-size: 0.8rem;
 }
 
 .pill-time {
