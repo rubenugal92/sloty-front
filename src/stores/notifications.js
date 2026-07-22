@@ -13,23 +13,28 @@ export const useNotificationsStore = defineStore('notifications', {
     // Initialize WebSocket connection
     initWebSocket() {
       const auth = useAuthStore()
-      if (!auth.isAuthenticated || !auth.user) return
+      if (!auth.isAuthenticated || !auth.user) {
+        console.log('❌ WebSocket: Not authenticated or no user');
+        return
+      }
 
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
       const host = window.location.host
       const wsUrl = `${protocol}//${host}/ws?userId=${auth.user.id}&token=${auth.token}`
+      console.log(`🔌 Attempting WebSocket connection: ${wsUrl}`);
 
       try {
         this.ws = new WebSocket(wsUrl)
 
         this.ws.onopen = () => {
-          console.log('✅ WebSocket connected')
+          console.log('✅ WebSocket connected (user:', auth.user.id, ')')
           this.isConnected = true
         }
 
         this.ws.onmessage = (event) => {
           try {
             const message = JSON.parse(event.data)
+            console.log('📨 WebSocket message received:', message.type);
             this.handleMessage(message)
           } catch (err) {
             console.error('Error parsing WebSocket message:', err)
@@ -44,7 +49,7 @@ export const useNotificationsStore = defineStore('notifications', {
         }
 
         this.ws.onerror = (error) => {
-          console.error('WebSocket error:', error)
+          console.error('🔴 WebSocket error:', error)
           this.isConnected = false
         }
       } catch (err) {
