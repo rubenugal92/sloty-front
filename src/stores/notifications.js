@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { useAuthStore } from './auth'
+import { useAppointmentsStore } from './appointments'
 
 export const useNotificationsStore = defineStore('notifications', {
   state: () => ({
@@ -63,6 +64,7 @@ export const useNotificationsStore = defineStore('notifications', {
 
     handleMessage(message) {
       const { type, data, timestamp } = message
+      const appointmentsStore = useAppointmentsStore()
 
       if (type === 'appointment_created') {
         this.addNotification({
@@ -74,6 +76,8 @@ export const useNotificationsStore = defineStore('notifications', {
           timestamp,
           read: false,
         })
+        // Refetch appointments to sync calendar
+        appointmentsStore.load()
       } else if (type === 'appointment_deleted') {
         this.addNotification({
           id: data.id,
@@ -84,6 +88,8 @@ export const useNotificationsStore = defineStore('notifications', {
           timestamp,
           read: false,
         })
+        // Refetch appointments to sync calendar
+        appointmentsStore.load()
       }
     },
 
