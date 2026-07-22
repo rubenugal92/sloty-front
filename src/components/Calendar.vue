@@ -72,8 +72,8 @@
       </button>
     </div>
 
-    <!-- APPOINTMENTS -->
-    <div class="appointments-list">
+    <!-- APPOINTMENTS (oculto en fullscreen) -->
+    <div v-if="!isFullscreen" class="appointments-list">
       <div class="list-header">
         <h3 v-if="selectedDayData">{{ selectedDayData }}</h3>
         <h3 v-else class="muted-title">Selecciona un día</h3>
@@ -144,7 +144,7 @@ export default {
     loading: Boolean,
     isFullscreen: Boolean
   },
-  emits: ['appointment-selected', 'date-selected', 'toggle-fullscreen'],
+  emits: ['appointment-selected', 'date-selected', 'toggle-fullscreen', 'day-appointments-changed'],
 
   setup(props, { emit }) {
 
@@ -219,6 +219,14 @@ export default {
     const selectDay = (day) => {
       selectedDay.value = day
       emit('date-selected', getDateString(day))
+      // Emit appointments for selected day
+      if (day) {
+        const ds = getDateString(day)
+        const dayAppts = props.appointments
+          .filter(a => a.datetime.startsWith(ds))
+          .sort((a, b) => new Date(a.datetime) - new Date(b.datetime))
+        emit('day-appointments-changed', dayAppts)
+      }
     }
 
     const dayAppointments = (day) => {
@@ -327,7 +335,7 @@ export default {
 }
 
 .calendar.fullscreen .calendar-grid {
-  flex: 3;
+  flex: 1;
   gap: 0.3rem;
 }
 
