@@ -60,6 +60,16 @@
       </button>
     </div>
 
+    <!-- FULLSCREEN BUTTON -->
+    <button
+      class="fullscreen-toggle"
+      @click="$emit('toggle-fullscreen')"
+      :title="isFullscreen ? 'Salir de pantalla completa' : 'Ampliar'"
+    >
+      <i v-if="isFullscreen" class="ri-fullscreen-exit-line"></i>
+      <i v-else class="ri-fullscreen-line"></i>
+    </button>
+
     <!-- APPOINTMENTS -->
     <div class="appointments-list">
       <div class="list-header">
@@ -129,9 +139,10 @@ export default {
   name: 'Calendar',
   props: {
     appointments: { type: Array, default: () => [] },
-    loading: Boolean
+    loading: Boolean,
+    isFullscreen: Boolean
   },
-  emits: ['appointment-selected', 'date-selected'],
+  emits: ['appointment-selected', 'date-selected', 'toggle-fullscreen'],
 
   setup(props, { emit }) {
 
@@ -296,6 +307,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  position: relative;
 }
 
 /* ---------- header ---------- */
@@ -494,6 +506,33 @@ export default {
 .day.selected .day-pill.more {
   background: rgba(255, 255, 255, 0.18);
   color: rgba(255, 255, 255, 0.85);
+}
+
+/* ---------- fullscreen button ---------- */
+.fullscreen-toggle {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: #4338ca;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  z-index: 100;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.fullscreen-toggle:hover {
+  background: #3730a3;
+  transform: scale(1.05);
+}
+
+.fullscreen-toggle i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ---------- list ---------- */

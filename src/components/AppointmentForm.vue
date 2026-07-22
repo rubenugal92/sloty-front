@@ -44,40 +44,43 @@
       </div>
 
       <div class="form-group">
-        <label>Empleado</label>
-        <select
-          v-model="form.user_id"
-          required
-          :disabled="loading || !form.date || users.length === 0"
-          @change="updateAvailableSlots"
-        >
-          <option value="">Selecciona una fecha primero</option>
-          <option v-for="employee in users" :key="employee.id" :value="employee.id">
-            {{ employee.name }}{{ employee.specialties ? ` (${employee.specialties})` : '' }}
-          </option>
-        </select>
-        <small v-if="!form.date" class="text-muted">
-          Elige primero la fecha para ver empleados disponibles.
-        </small>
-        <small v-else-if="users.length === 0" class="text-danger">
-          No hay empleados disponibles para esa fecha.
-        </small>
-      </div>
-
-      <div class="form-group">
         <label>Hora</label>
         <select
           v-model="form.time"
           required
-          :disabled="loading || availableSlots.length === 0"
+          :disabled="loading || !form.date || availableSlots.length === 0"
+          @change="handleTimeChange"
         >
-          <option value="">Selecciona una hora</option>
+          <option value="">Selecciona una fecha primero</option>
           <option v-for="slot in availableSlots" :key="slot" :value="slot">
             {{ slot }}
           </option>
         </select>
-        <small v-if="availableSlots.length === 0 && form.date && form.user_id" class="text-danger">
-          No hay horarios disponibles para esta fecha con este empleado
+        <small v-if="!form.date" class="text-muted">
+          Elige primero la fecha para ver horas disponibles.
+        </small>
+        <small v-else-if="availableSlots.length === 0" class="text-danger">
+          No hay horarios disponibles para esa fecha.
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label>Empleado</label>
+        <select
+          v-model="form.user_id"
+          required
+          :disabled="loading || !form.date || !form.time || users.length === 0"
+        >
+          <option value="">Selecciona hora primero</option>
+          <option v-for="employee in users" :key="employee.id" :value="employee.id">
+            {{ employee.name }}{{ employee.specialties ? ` (${employee.specialties})` : '' }}
+          </option>
+        </select>
+        <small v-if="!form.date || !form.time" class="text-muted">
+          Elige primero la fecha y hora para ver empleados disponibles.
+        </small>
+        <small v-else-if="users.length === 0" class="text-danger">
+          No hay empleados disponibles para ese día y hora.
         </small>
       </div>
 
@@ -180,15 +183,15 @@ export default {
       }
     }
 
-    const loadAvailableUsers = async (date) => {
-      if (!date) {
+    const loadAvailableUsers = async (date, time) => {
+      if (!date || !time) {
         users.value = []
         form.value.user_id = ''
         return
       }
 
       try {
-        const fetched = await getAvailableUsers(date, companies.selectedCompanyId)
+        const fetched = await getAvailableUsers(date, companies.selectedCompanyId, time)
         users.value = fetched || []
         // Preserve current user selection only if still available
         const currentId = form.value.user_id
@@ -220,12 +223,12 @@ export default {
     }
 
     const updateAvailableSlots = async () => {
-      if (!form.value.date || !form.value.user_id) {
+      if (!form.value.date) {
         availableSlots.value = []
         return
       }
       try {
-        availableSlots.value = await getAvailableSlots(form.value.date, form.value.user_id)
+        availableSlots.value = await getAvailableSlots(form.value.date)
         form.value.time = ''
       } catch (e) {
         console.error('Error fetching slots:', e)
@@ -234,13 +237,15 @@ export default {
     }
 
     const handleDateChange = async () => {
-      await loadAvailableUsers(form.value.date)
+      await updateAvailableSlots()
       form.value.time = ''
-      availableSlots.value = []
-      // If a user remains selected after reloading, fetch their slots
-      if (form.value.user_id) {
-        await updateAvailableSlots()
-      }
+      form.value.user_id = ''
+      users.value = []
+    }
+
+    const handleTimeChange = async () => {
+      await loadAvailableUsers(form.value.date, form.value.time)
+      form.value.user_id = ''
     }
 
     const submitForm = async () => {
@@ -330,14 +335,13 @@ export default {
       form.value.status = a.status
       form.value.notes = a.notes || ''
 
-      await loadAvailableUsers(form.value.date)
-      updateAvailableSlots()
+      await loadAvailableUsers(form.value.date, form.value.time)
     }, { deep: true })
 
     watch(() => props.selectedDate, async (d) => {
       if (d && !props.appointment) {
         form.value.date = d
-        await loadAvailableUsers(d)
+        await updateAvailableSlots()
       }
     })
 
@@ -356,6 +360,7 @@ export default {
       resetForm,
       updateAvailableSlots,
       handleDateChange,
+      handleTimeChange,
       submitForm,
       handleDelete,
       copyToClipboard
