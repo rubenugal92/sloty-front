@@ -249,14 +249,10 @@ export default {
     const selectedDayData = computed(() => {
       if (!selectedDay.value) return null
 
-      const date = new Date(getDateString(selectedDay.value))
-
-      return date.toLocaleDateString('es-ES', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-      }).replace(/^\w/, c => c.toUpperCase())
+      const ds = getDateString(selectedDay.value)
+      const [year, month, day] = ds.split('-')
+      
+      return `${day}-${month}-${year}`
     })
 
     const appointmentsForSelectedDay = computed(() => {
@@ -626,7 +622,7 @@ export default {
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  padding-bottom: 0.75rem;
+  padding: 0.75rem 1rem 0.75rem 1rem;
   border-bottom: 1px solid var(--border);
 }
 

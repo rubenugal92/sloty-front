@@ -124,7 +124,9 @@ onMounted(() => {
 })
 
 const onDateSelected = (date) => {
-  selectedDate.value = date
+  // Convierte yyyy-mm-dd a dd-mm-yyyy
+  const [year, month, day] = date.split('-')
+  selectedDate.value = `${day}-${month}-${year}`
 }
 
 const onDayAppointmentsChanged = (appointments) => {
@@ -254,7 +256,6 @@ const handleDelete = async (id) => {
   flex-direction: column;
   gap: 0.5rem;
   padding: 0.75rem 0.75rem 0.75rem 1.5rem;
-  border-left: 1px solid var(--border);
 }
 
 .list-header {
@@ -262,7 +263,7 @@ const handleDelete = async (id) => {
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  padding-bottom: 0.5rem;
+  padding: 0.75rem 1rem 0.75rem 1rem;
   border-bottom: 1px solid var(--border);
 }
 
