@@ -312,12 +312,34 @@ export default {
   position: relative;
 }
 
+.calendar.fullscreen {
+  flex-direction: row;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.calendar-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.calendar.fullscreen .calendar-grid {
+  gap: 0.5rem;
+}
+
 /* ---------- header ---------- */
 .calendar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
+}
+
+.calendar.fullscreen .calendar-header {
+  gap: 0.5rem;
 }
 
 .calendar-title {
@@ -330,6 +352,10 @@ export default {
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.015em;
+}
+
+.calendar.fullscreen .title-month {
+  font-size: 1.1rem;
 }
 .title-year {
   font-size: 1rem;
@@ -372,6 +398,11 @@ export default {
   margin-bottom: 4px;
 }
 
+.calendar.fullscreen .weekdays {
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
 .weekday {
   text-align: center;
   font-size: 0.72rem;
@@ -386,6 +417,10 @@ export default {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 6px;
+}
+
+.calendar.fullscreen .days-grid {
+  gap: 4px;
 }
 
 .day {
@@ -409,6 +444,12 @@ export default {
               border-color var(--duration-fast) var(--ease-out),
               transform var(--duration-fast) var(--ease-out),
               box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.calendar.fullscreen .day {
+  min-height: 65px;
+  padding: 0.3rem 0.35rem;
+  gap: 3px;
 }
 
 .day:hover:not(.empty):not(:disabled) {
@@ -545,6 +586,12 @@ export default {
   gap: 0.75rem;
 }
 
+.calendar.fullscreen .appointments-list {
+  flex: 1;
+  margin-top: 0;
+  gap: 0.5rem;
+}
+
 .list-header {
   display: flex;
   align-items: center;
@@ -552,6 +599,10 @@ export default {
   gap: 0.5rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--border);
+}
+
+.calendar.fullscreen .list-header {
+  padding-bottom: 0.5rem;
 }
 
 .list-header h3 {
@@ -581,6 +632,11 @@ export default {
   padding-right: 4px;
 }
 
+.calendar.fullscreen .appointments {
+  gap: 0.45rem;
+  max-height: none;
+}
+
 .appointment-card {
   position: relative;
   padding: 0.9rem 1rem;
@@ -594,6 +650,11 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+.calendar.fullscreen .appointment-card {
+  padding: 0.65rem 0.8rem;
+  gap: 0.35rem;
 }
 
 .appointment-card::before {
