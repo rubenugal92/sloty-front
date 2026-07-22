@@ -32,7 +32,7 @@
            :class="{ active: route.path === '/planning' }"
            @click="go('/planning')"
          >
-           <i class="ri-layout-list-line"></i>
+           <i class="ri-list-check-line"></i>
            <span>Planning</span>
          </button>
 
