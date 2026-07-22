@@ -57,9 +57,10 @@
       </span>
           <span>{{ connecting ? 'Conectando…' : 'Activar bot WhatsApp' }}</span>
         </button>
-      </nav>
+       </nav>
 
       <div class="nav-user">
+        <NotificationBell />
         <div class="user-chip" :title="user?.email || ''">
           <div class="user-avatar">{{ initials }}</div>
           <div class="user-meta">
@@ -117,6 +118,7 @@ import { useCompaniesStore } from '../stores/companies'
 import { useAppointmentsStore } from '../stores/appointments'
 import { useUsersStore } from '../stores/users'
 import CompanySelector from './CompanySelector.vue'
+import NotificationBell from './NotificationBell.vue'
 
 const router = useRouter()
 const route = useRoute()
