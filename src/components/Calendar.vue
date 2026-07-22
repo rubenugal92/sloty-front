@@ -314,7 +314,7 @@ export default {
 
 .calendar.fullscreen {
   flex-direction: row;
-  gap: 1rem;
+  gap: 0.5rem;
   align-items: flex-start;
 }
 
@@ -328,7 +328,7 @@ export default {
 
 .calendar.fullscreen .calendar-grid {
   flex: 3;
-  gap: 0.5rem;
+  gap: 0.3rem;
 }
 
 /* ---------- header ---------- */
@@ -400,8 +400,8 @@ export default {
 }
 
 .calendar.fullscreen .weekdays {
-  gap: 4px;
-  margin-bottom: 2px;
+  gap: 3px;
+  margin-bottom: 1px;
 }
 
 .weekday {
@@ -421,7 +421,7 @@ export default {
 }
 
 .calendar.fullscreen .days-grid {
-  gap: 4px;
+  gap: 3px;
 }
 
 .day {
@@ -449,8 +449,8 @@ export default {
 
 .calendar.fullscreen .day {
   min-height: 120px;
-  padding: 0.6rem 0.7rem;
-  gap: 5px;
+  padding: 0.5rem 0.5rem;
+  gap: 4px;
 }
 
 .day:hover:not(.empty):not(:disabled) {

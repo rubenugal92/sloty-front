@@ -86,8 +86,8 @@ const handleDelete = async (id) => {
 
 .app-container.fullscreen {
   grid-template-columns: 3fr 1.2fr;
-  gap: 1rem;
-  padding: 1rem;
+  gap: 0.75rem;
+  padding: 0.5rem 0.5rem 0.5rem 0.35rem;
 }
 
 .left-panel {
