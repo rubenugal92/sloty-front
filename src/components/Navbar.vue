@@ -7,57 +7,57 @@
         <h1>Sloty</h1>
       </div>
 
-      <nav class="nav-menu" aria-label="Navegación principal">
-        <button
-          class="nav-button"
-          :class="{ active: route.path === '/calendario' }"
-          @click="go('/calendario')"
-        >
-          <span class="nav-icon">📅</span>
-          <span>Citas</span>
-        </button>
+       <nav class="nav-menu" aria-label="Navegación principal">
+         <button
+           class="nav-button"
+           :class="{ active: route.path === '/calendario' }"
+           @click="go('/calendario')"
+         >
+           <i class="ri-calendar-2-line"></i>
+           <span>Citas</span>
+         </button>
 
-        <button
-          v-if="isAdmin"
-          class="nav-button"
-          :class="{ active: route.path === '/usuarios' }"
-          @click="go('/usuarios')"
-        >
-          <span class="nav-icon">👥</span>
-          <span>Empleados</span>
-        </button>
+         <button
+           v-if="isAdmin"
+           class="nav-button"
+           :class="{ active: route.path === '/usuarios' }"
+           @click="go('/usuarios')"
+         >
+           <i class="ri-group-line"></i>
+           <span>Empleados</span>
+         </button>
 
-        <button
-          class="nav-button"
-          :class="{ active: route.path === '/planning' }"
-          @click="go('/planning')"
-        >
-          <span class="nav-icon">📋</span>
-          <span>Planning</span>
-        </button>
+         <button
+           class="nav-button"
+           :class="{ active: route.path === '/planning' }"
+           @click="go('/planning')"
+         >
+           <i class="ri-layout-list-line"></i>
+           <span>Planning</span>
+         </button>
 
-        <button
-          v-if="auth.isSuperAdmin"
-          class="nav-button"
-          :class="{ active: route.path === '/empresas' }"
-          @click="go('/empresas')"
-        >
-          <span class="nav-icon">🏢</span>
-          <span>Empresas</span>
-        </button>
+         <button
+           v-if="auth.isSuperAdmin"
+           class="nav-button"
+           :class="{ active: route.path === '/empresas' }"
+           @click="go('/empresas')"
+         >
+           <i class="ri-building-line"></i>
+           <span>Empresas</span>
+         </button>
 
-        <button
-          v-if="canConnectWhatsapp"
-          class="nav-button"
-          @click="handleConnectWhatsApp"
-          :disabled="connecting"
-        >
-       <span class="nav-icon">
-        <img src="../../img/logoWhatsapp.png" alt="WhatsApp" class="whatsapp-icon" />
-      </span>
-          <span>{{ connecting ? 'Conectando…' : 'Activar bot WhatsApp' }}</span>
-        </button>
-       </nav>
+         <button
+           v-if="canConnectWhatsapp"
+           class="nav-button"
+           @click="handleConnectWhatsApp"
+           :disabled="connecting"
+         >
+        <span class="nav-icon">
+         <img src="../../img/logoWhatsapp.png" alt="WhatsApp" class="whatsapp-icon" />
+       </span>
+           <span>{{ connecting ? 'Conectando…' : 'Activar bot WhatsApp' }}</span>
+         </button>
+        </nav>
 
       <div class="nav-user">
         <NotificationBell />
@@ -266,6 +266,10 @@ onMounted(async () => {
 .nav-button.active {
   background: #eef2ff;
   color: #4338ca;
+}
+
+.nav-button i {
+  font-size: 1.2rem;
 }
 
 .nav-icon {

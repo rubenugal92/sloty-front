@@ -5,7 +5,7 @@
       @click="togglePanel"
       :title="`Notificaciones (${unreadCount})`"
     >
-      <span class="bell-icon">🔔</span>
+      <i class="ri-notification-3-line"></i>
       <span v-if="unreadCount > 0" class="badge">{{ unreadCount }}</span>
     </button>
 
@@ -25,7 +25,7 @@
 
         <div class="panel-body">
           <div v-if="notifications.length === 0" class="empty-state">
-            <span class="empty-icon">📭</span>
+            <i class="ri-inbox-line empty-icon"></i>
             <p>Sin notificaciones</p>
           </div>
 
@@ -38,8 +38,8 @@
               @click="markAsRead(notif.id)"
             >
               <div class="notif-icon">
-                <span v-if="notif.type === 'appointment_created'">✅</span>
-                <span v-else-if="notif.type === 'appointment_deleted'">❌</span>
+                <i v-if="notif.type === 'appointment_created'" class="ri-check-line"></i>
+                <i v-else-if="notif.type === 'appointment_deleted'" class="ri-close-line"></i>
               </div>
               <div class="notif-content">
                 <p class="notif-title">{{ notif.title }}</p>
@@ -118,17 +118,19 @@ onUnmounted(() => {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 24px;
   padding: 8px;
   transition: transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bell-button i {
+  font-size: 1.5rem;
 }
 
 .bell-button:hover {
   transform: scale(1.1);
-}
-
-.bell-icon {
-  display: inline-block;
 }
 
 .badge {
@@ -209,8 +211,9 @@ onUnmounted(() => {
 }
 
 .empty-icon {
-  font-size: 48px;
+  font-size: 3rem;
   margin-bottom: 8px;
+  color: #bbb;
 }
 
 .notification-list {
@@ -238,9 +241,13 @@ onUnmounted(() => {
 }
 
 .notif-icon {
-  font-size: 20px;
   flex-shrink: 0;
   padding-top: 2px;
+  font-size: 1.25rem;
+}
+
+.notif-icon i {
+  color: #666;
 }
 
 .notif-content {
