@@ -85,7 +85,9 @@ const handleDelete = async (id) => {
 }
 
 .app-container.fullscreen {
-  grid-template-columns: 1fr;
+  grid-template-columns: 3fr 1.2fr;
+  gap: 1rem;
+  padding: 1rem;
 }
 
 .left-panel {
@@ -96,12 +98,20 @@ const handleDelete = async (id) => {
   height: 100%;
 }
 
+.app-container.fullscreen .left-panel {
+  overflow: visible;
+}
+
 .calendar-wrapper {
   position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow: auto;
+}
+
+.app-container.fullscreen .calendar-wrapper {
+  overflow: visible;
 }
 
 .right-panel {
