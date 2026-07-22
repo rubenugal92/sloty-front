@@ -272,11 +272,6 @@ onMounted(async () => {
   font-size: 1.2rem;
 }
 
-.nav-icon {
-  font-size: 0.95rem;
-  line-height: 1;
-}
-
 .nav-user {
   display: flex;
   align-items: center;
