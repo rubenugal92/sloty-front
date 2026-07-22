@@ -100,6 +100,13 @@ export const getAvailableUsers = async (date, companyId = null, time = null) => 
   return data
 }
 
+export const getLeastBusyUser = async (date, time, companyId = null) => {
+  let url = `/users/least-busy?date=${date}&time=${time}`
+  if (companyId) url += `&company_id=${companyId}`
+  const { data } = await api.get(url)
+  return data
+}
+
 export const createAppointment = async (appointmentData) => {
   const { data } = await api.post('/appointments', appointmentData)
   return data

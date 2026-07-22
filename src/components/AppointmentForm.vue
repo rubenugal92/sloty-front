@@ -64,25 +64,26 @@
         </small>
       </div>
 
-      <div class="form-group">
-        <label>Empleado</label>
-        <select
-          v-model="form.user_id"
-          required
-          :disabled="loading || !form.date || !form.time || users.length === 0"
-        >
-          <option value="">Selecciona hora primero</option>
-          <option v-for="employee in users" :key="employee.id" :value="employee.id">
-            {{ employee.name }}{{ employee.specialties ? ` (${employee.specialties})` : '' }}
-          </option>
-        </select>
-        <small v-if="!form.date || !form.time" class="text-muted">
-          Elige primero la fecha y hora para ver empleados disponibles.
-        </small>
-        <small v-else-if="users.length === 0" class="text-danger">
-          No hay empleados disponibles para ese día y hora.
-        </small>
-      </div>
+       <div class="form-group">
+         <label>Empleado</label>
+         <select
+           v-model="form.user_id"
+           required
+           :disabled="loading || !form.date || !form.time || users.length === 0"
+         >
+           <option value="">Selecciona hora primero</option>
+           <option value="indiferente">Indiferente</option>
+           <option v-for="employee in users" :key="employee.id" :value="employee.id">
+             {{ employee.name }}{{ employee.specialties ? ` (${employee.specialties})` : '' }}
+           </option>
+         </select>
+         <small v-if="!form.date || !form.time" class="text-muted">
+           Elige primero la fecha y hora para ver empleados disponibles.
+         </small>
+         <small v-else-if="users.length === 0" class="text-danger">
+           No hay empleados disponibles para ese día y hora.
+         </small>
+       </div>
 
       <div class="form-group">
         <label>Servicio</label>
@@ -144,7 +145,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import Swal from 'sweetalert2'
 import { useCompaniesStore } from '../stores/companies'
-import { createAppointment, updateAppointment as updateAppointmentAPI, deleteAppointment as deleteAppointmentAPI, getAvailableSlots, getAvailableUsers, getAllUsers } from '../api/appointments.js'
+import { createAppointment, updateAppointment as updateAppointmentAPI, deleteAppointment as deleteAppointmentAPI, getAvailableSlots, getAvailableUsers, getLeastBusyUser, getAllUsers } from '../api/appointments.js'
 
 export default {
   name: 'AppointmentForm',
@@ -257,6 +258,31 @@ export default {
       const utcMinutes = String(minutes).padStart(2, '0')
       const datetime = `${form.value.date}T${utcHours}:${utcMinutes}:00`
 
+      // Si user_id es "indiferente", obtener el menos ocupado
+      let userId = form.value.user_id
+      if (userId === 'indiferente') {
+        try {
+          const leastBusy = await getLeastBusyUser(form.value.date, form.value.time, companies.selectedCompanyId)
+          if (!leastBusy) {
+            await Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'No hay empleados disponibles para asignar automáticamente'
+            })
+            return
+          }
+          userId = leastBusy.id
+        } catch (e) {
+          console.error('Error assigning least busy user:', e)
+          await Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: e.response?.data?.error || 'No se pudo asignar empleado automáticamente'
+          })
+          return
+        }
+      }
+
       const appointmentData = {
         phone: form.value.phone,
         customer_name: form.value.customer_name?.trim() || null,
@@ -264,7 +290,7 @@ export default {
         service: form.value.service,
         status: form.value.status,
         notes: form.value.notes,
-        user_id: parseInt(form.value.user_id)
+        user_id: parseInt(userId)
       }
 
       try {
