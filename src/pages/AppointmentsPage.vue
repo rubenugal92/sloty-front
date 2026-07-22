@@ -195,10 +195,12 @@ const handleDelete = async (id) => {
   display: flex;
   flex-direction: column;
   overflow: auto;
+  width: 100%;
 }
 
 .app-container.fullscreen .calendar-wrapper {
   overflow: hidden;
+  width: 100%;
 }
 
 .right-panel {
@@ -251,6 +253,8 @@ const handleDelete = async (id) => {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  padding: 0.75rem 0.75rem 0.75rem 1.5rem;
+  border-left: 1px solid var(--border);
 }
 
 .list-header {

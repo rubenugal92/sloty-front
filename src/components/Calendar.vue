@@ -3,6 +3,15 @@
     <div class="calendar-grid">
       <!-- HEADER -->
       <header class="calendar-header">
+        <button 
+          class="fullscreen-toggle"
+          @click="$emit('toggle-fullscreen')"
+          :title="isFullscreen ? 'Salir de pantalla completa' : 'Ampliar'"
+        >
+          <i v-if="isFullscreen" class="ri-fullscreen-exit-line"></i>
+          <i v-else class="ri-fullscreen-line"></i>
+        </button>
+
         <button @click="previousMonth" class="nav-btn" aria-label="Mes anterior">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
@@ -60,16 +69,6 @@
           </template>
         </button>
       </div>
-
-      <!-- FULLSCREEN BUTTON -->
-      <button
-        class="fullscreen-toggle"
-        @click="$emit('toggle-fullscreen')"
-        :title="isFullscreen ? 'Salir de pantalla completa' : 'Ampliar'"
-      >
-        <i v-if="isFullscreen" class="ri-fullscreen-exit-line"></i>
-        <i v-else class="ri-fullscreen-line"></i>
-      </button>
     </div>
 
     <!-- APPOINTMENTS (oculto en fullscreen) -->
@@ -347,6 +346,11 @@ export default {
   gap: 0.75rem;
 }
 
+.calendar-header .fullscreen-toggle {
+  order: -1;
+  margin-right: auto;
+}
+
 .calendar.fullscreen .calendar-header {
   gap: 0.5rem;
 }
@@ -576,9 +580,7 @@ export default {
 
 /* ---------- fullscreen button ---------- */
 .fullscreen-toggle {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
+  position: relative;
   background: #4338ca;
   color: white;
   border: none;

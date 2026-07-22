@@ -57,5 +57,7 @@ const showNavbar = computed(() => {
 
 .app-shell.fullscreen .page-content {
   height: 100vh;
+  padding: 0;
+  max-width: 100%;
 }
 </style>
