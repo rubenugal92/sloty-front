@@ -123,6 +123,7 @@ import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import Swal from 'sweetalert2'
 import { useAuthStore } from '../stores/auth'
 import { useCompaniesStore } from '../stores/companies'
+import { useCentersStore } from '../stores/centers'
 
 const props = defineProps({
   userId: [Number, String],
@@ -133,11 +134,14 @@ const { compact } = props
 
 const auth = useAuthStore()
 const companies = useCompaniesStore()
+const centers = useCentersStore()
 const isAdmin = computed(() => auth.isAdmin)
 
 const activeCompanyId = computed(() =>
   auth.isSuperAdmin ? companies.selectedCompanyId : null
 )
+
+const activeCenterId = computed(() => centers.selectedCenterId)
 
 const withCompanyParam = (url) => {
   if (!activeCompanyId.value) return url
@@ -225,7 +229,11 @@ const calendarDays = computed(() => {
 /* ---------------- API ---------------- */
 const fetchUsers = async () => {
   if (!isAdmin.value) return
-  const res = await fetch(withCompanyParam(`${API}/api/users`), {
+  let url = `${API}/api/users`
+  if (activeCenterId.value) {
+    url += `?center_id=${activeCenterId.value}`
+  }
+  const res = await fetch(url, {
     headers: { Authorization: `Bearer ${auth.token}` }
   })
   users.value = await res.json()
@@ -236,9 +244,10 @@ const fetchPlanning = async () => {
   const first = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth(), 1)
   const last = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1, 0)
 
-  const url = withCompanyParam(
-    `${API}/api/planning/user/${selectedUserId.value}?start_date=${first.toISOString().split('T')[0]}&end_date=${last.toISOString().split('T')[0]}`
-  )
+  let url = `${API}/api/planning/user/${selectedUserId.value}?start_date=${first.toISOString().split('T')[0]}&end_date=${last.toISOString().split('T')[0]}`
+  if (activeCenterId.value) {
+    url += `&center_id=${activeCenterId.value}`
+  }
 
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${auth.token}` }
@@ -288,7 +297,7 @@ const savePlanning = async () => {
         include_weekends: includeWeekends.value,
         start_time: selectedType.value === 'work' && startTime.value ? startTime.value : null,
         end_time:   selectedType.value === 'work' && endTime.value   ? endTime.value   : null,
-        ...(activeCompanyId.value ? { company_id: activeCompanyId.value } : {})
+        ...(activeCenterId.value ? { center_id: activeCenterId.value } : {})
       })
     })
 
@@ -314,7 +323,12 @@ const savePlanning = async () => {
 const deletePlanningEntry = async () => {
   if (!existingPlanning.value) return
 
-  await fetch(`${API}/api/planning/${existingPlanning.value.id}`, {
+  let url = `${API}/api/planning/${existingPlanning.value.id}`
+  if (activeCenterId.value) {
+    url += `?center_id=${activeCenterId.value}`
+  }
+
+  await fetch(url, {
     method: 'DELETE',
     headers: { Authorization: `Bearer ${auth.token}` }
   })
@@ -344,9 +358,10 @@ const deletePlanningRange = async () => {
 
   if (!result.isConfirmed) return
 
-  const url = withCompanyParam(
-    `${API}/api/planning/range?user_id=${selectedUserId.value}&start_date=${startDate.value}&end_date=${endDate.value}`
-  )
+  let url = `${API}/api/planning/range?user_id=${selectedUserId.value}&start_date=${startDate.value}&end_date=${endDate.value}`
+  if (activeCenterId.value) {
+    url += `&center_id=${activeCenterId.value}`
+  }
 
   const response = await fetch(url, {
     method: 'DELETE',
