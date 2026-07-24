@@ -203,14 +203,12 @@ export const connectWhatsApp = async (companyId = null, centerId = null) => {
 
 // ===================== CENTERS =====================
 export const getAllCenters = async (companyId) => {
-  let url = '/centers'
-  if (companyId) url += `?company_id=${companyId}`
-  const { data } = await api.get(url)
+  const { data } = await api.get(`/centers/${companyId}`)
   return data
 }
 
 export const getCenterById = async (id) => {
-  const { data } = await api.get(`/centers/${id}`)
+  const { data } = await api.get(`/center/${id}`)
   return data
 }
 
@@ -220,12 +218,12 @@ export const createCenter = async (centerData) => {
 }
 
 export const updateCenter = async (id, centerData) => {
-  const { data } = await api.put(`/centers/${id}`, centerData)
+  const { data } = await api.put(`/center/${id}`, centerData)
   return data
 }
 
 export const deleteCenter = async (id) => {
-  const { data } = await api.delete(`/centers/${id}`)
+  const { data } = await api.delete(`/center/${id}`)
   return data
 }
 

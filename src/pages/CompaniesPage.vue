@@ -3,7 +3,7 @@
     <div class="page-header">
       <div>
         <h2>Empresas</h2>
-        <p>Gestiona las empresas y sus credenciales de WhatsApp Business.</p>
+        <p>Gestiona las empresas del sistema.</p>
       </div>
       <button class="btn btn-primary" @click="startCreate">+ Nueva empresa</button>
     </div>
@@ -28,22 +28,6 @@
           <input v-model="editing.phone" type="tel" />
         </div>
 
-        <h4 class="section-title">WhatsApp Business (Meta)</h4>
-
-        <div class="form-group">
-          <label>Phone Number ID</label>
-          <input v-model="editing.whatsapp_phone_number_id" type="text" placeholder="Ej: 1234567890" />
-        </div>
-        <div class="form-group">
-          <label>Número visible (display)</label>
-          <input v-model="editing.whatsapp_display_number" type="tel" placeholder="+34 600 000 000" />
-        </div>
-        <div class="form-group full">
-          <label>Access Token</label>
-          <input v-model="editing.whatsapp_access_token" type="password" placeholder="EAAB…" autocomplete="off" />
-          <small class="hint">Token permanente de Meta para esta WABA.</small>
-        </div>
-
         <div v-if="error" class="alert alert-danger">{{ error }}</div>
 
         <div class="form-actions">
@@ -64,19 +48,9 @@
         <ul class="info">
           <li v-if="c.contact_email"><strong>Email:</strong> {{ c.contact_email }}</li>
           <li v-if="c.phone"><strong>Tel.:</strong> {{ c.phone }}</li>
-          <li>
-            <strong>WhatsApp:</strong>
-            <span v-if="c.whatsapp_phone_number_id" class="waba-ok">✓ configurado</span>
-            <span v-else class="waba-ko">— sin configurar</span>
-          </li>
-          <li v-if="c.whatsapp_display_number" class="muted">{{ c.whatsapp_display_number }}</li>
-          <li class="status-row">
-            <span :class="['status-pill', connectionStateClass(c)]">{{ connectionLabel(c) }}</span>
-          </li>
         </ul>
         <div class="company-actions">
           <button class="btn btn-secondary btn-sm" @click="edit(c)">Editar</button>
-          <button class="btn btn-primary btn-sm" @click="connect(c)">{{ connectButtonLabel(c) }}</button>
         </div>
       </article>
     </div>
@@ -87,7 +61,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCompaniesStore } from '../stores/companies'
-import { createCompany, updateCompany, connectWhatsApp } from '../api/appointments.js'
+import { createCompany, updateCompany } from '../api/appointments.js'
 
 const route = useRoute()
 const store = useCompaniesStore()
@@ -99,38 +73,10 @@ const error = ref('')
 
 const empty = () => ({
   name: '', company_code: '', contact_email: '', phone: '',
-  whatsapp_phone_number_id: '', whatsapp_access_token: '', whatsapp_display_number: '',
 })
 
 const startCreate = () => { error.value = ''; editing.value = empty() }
 const edit = (c) => { error.value = ''; editing.value = { ...empty(), ...c } }
-
-const connectionLabel = (company) => {
-  if (company.whatsapp_phone_number_id) return `🟢 Conectado${company.whatsapp_display_number ? ` al ${company.whatsapp_display_number}` : ''}`
-  if (company.whatsapp_connection_status === 'reconnect') return '🟡 Requiere reconexión'
-  return '🔴 No conectado'
-}
-
-const connectionStateClass = (company) => {
-  if (company.whatsapp_phone_number_id) return 'connected'
-  if (company.whatsapp_connection_status === 'reconnect') return 'reconnect'
-  return 'disconnected'
-}
-
-const connectButtonLabel = (company) => {
-  if (company.whatsapp_phone_number_id) return 'Cambiar cuenta de WhatsApp'
-  if (company.whatsapp_connection_status === 'reconnect') return 'Reconectar WhatsApp'
-  return 'Conectar WhatsApp'
-}
-
-const connect = async (company) => {
-  try {
-    const data = await connectWhatsApp(company.id)
-    window.location.href = data.url
-  } catch (e) {
-    error.value = e.response?.data?.error || e.message || 'Error iniciando la conexión'
-  }
-}
 
 const save = async () => {
   error.value = ''
