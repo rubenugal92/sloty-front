@@ -5,7 +5,8 @@ export const useAuthStore = defineStore('auth', {
     isAuthenticated: !!localStorage.getItem('token'),
     token: localStorage.getItem('token'),
     user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null,
-    selectedCompanyId: localStorage.getItem('selectedCompanyId') ? parseInt(localStorage.getItem('selectedCompanyId')) : null
+    selectedCompanyId: localStorage.getItem('selectedCompanyId') ? parseInt(localStorage.getItem('selectedCompanyId')) : null,
+    selectedCenterId: localStorage.getItem('selectedCenterId') ? parseInt(localStorage.getItem('selectedCenterId')) : null
   }),
 
   getters: {
@@ -26,15 +27,22 @@ export const useAuthStore = defineStore('auth', {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
       localStorage.removeItem('selectedCompanyId')
+      localStorage.removeItem('selectedCenterId')
       this.token = null
       this.user = null
       this.isAuthenticated = false
       this.selectedCompanyId = null
+      this.selectedCenterId = null
     },
 
     setSelectedCompanyId(companyId) {
       this.selectedCompanyId = companyId
       localStorage.setItem('selectedCompanyId', companyId)
+    },
+
+    setSelectedCenterId(centerId) {
+      this.selectedCenterId = centerId
+      localStorage.setItem('selectedCenterId', centerId)
     }
   }
 })

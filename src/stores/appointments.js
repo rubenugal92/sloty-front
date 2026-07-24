@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { useCompaniesStore } from './companies'
+import { useCentersStore } from './centers'
 import {
   getAppointments,
   createAppointment,
@@ -19,7 +20,9 @@ export const useAppointmentsStore = defineStore('appointments', {
       try {
         this.loading = true
         const companies = useCompaniesStore()
-        this.items = await getAppointments(companies.selectedCompanyId)
+        const centers = useCentersStore()
+        let centerId = centers.selectedCenterId
+        this.items = await getAppointments(companies.selectedCompanyId, centerId)
       } catch (error) {
         console.error('Error loading appointments:', error)
       } finally {
@@ -29,6 +32,9 @@ export const useAppointmentsStore = defineStore('appointments', {
 
     setupCompanyChangeListener() {
       window.addEventListener('company-changed', () => {
+        this.load()
+      })
+      window.addEventListener('center-changed', () => {
         this.load()
       })
     },

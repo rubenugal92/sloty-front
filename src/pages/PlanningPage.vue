@@ -57,10 +57,12 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { useCompaniesStore } from '../stores/companies'
+import { useCentersStore } from '../stores/centers'
 import PlanningCalendar from '../components/PlanningCalendar.vue'
 
 const auth = useAuthStore()
 const companies = useCompaniesStore()
+const centers = useCentersStore()
 const selectedUserId = ref('')
 const users = ref([])
 
@@ -76,9 +78,14 @@ const getSelectedUserName = () => {
 const fetchUsers = async () => {
   try {
     let url = `${API_BASE_URL}/api/users`
+    let params = []
     if (auth.isSuperAdmin && companies.selectedCompanyId) {
-      url += `?company_id=${companies.selectedCompanyId}`
+      params.push(`company_id=${companies.selectedCompanyId}`)
     }
+    if (centers.selectedCenterId) {
+      params.push(`center_id=${centers.selectedCenterId}`)
+    }
+    if (params.length) url += '?' + params.join('&')
 
     const response = await fetch(url, {
       headers: { 'Authorization': `Bearer ${auth.token}` }
@@ -98,16 +105,27 @@ const onCompanyChanged = () => {
   if (isAdmin.value) fetchUsers()
 }
 
+const onCenterChanged = () => {
+  selectedUserId.value = ''
+  if (isAdmin.value) fetchUsers()
+}
+
 onMounted(() => {
   if (isAdmin.value) fetchUsers()
   window.addEventListener('company-changed', onCompanyChanged)
+  window.addEventListener('center-changed', onCenterChanged)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('company-changed', onCompanyChanged)
+  window.removeEventListener('center-changed', onCenterChanged)
 })
 
 watch(() => companies.selectedCompanyId, () => {
+  if (isAdmin.value) fetchUsers()
+})
+
+watch(() => centers.selectedCenterId, () => {
   if (isAdmin.value) fetchUsers()
 })
 </script>

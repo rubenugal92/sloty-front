@@ -61,48 +61,62 @@ export const isAuthenticated = () => !!getToken()
 
 // ===================== APPOINTMENTS =====================
 
-export const getAllAppointments = async (companyId = null) => {
+export const getAllAppointments = async (companyId = null, centerId = null) => {
   let url = '/appointments'
-  if (companyId) url += `?company_id=${companyId}`
+  let params = []
+  if (companyId) params.push(`company_id=${companyId}`)
+  if (centerId) params.push(`center_id=${centerId}`)
+  if (params.length) url += '?' + params.join('&')
   const { data } = await api.get(url)
   return data
 }
 
 export const getAppointments = getAllAppointments
 
-export const getAppointmentById = async (id, companyId = null) => {
+export const getAppointmentById = async (id, companyId = null, centerId = null) => {
   let url = `/appointments/${id}`
-  if (companyId) url += `?company_id=${companyId}`
+  let params = []
+  if (companyId) params.push(`company_id=${companyId}`)
+  if (centerId) params.push(`center_id=${centerId}`)
+  if (params.length) url += '?' + params.join('&')
   const { data } = await api.get(url)
   return data
 }
 
-export const getAppointmentsByDateRange = async (startDate, endDate, companyId = null) => {
+export const getAppointmentsByDateRange = async (startDate, endDate, companyId = null, centerId = null) => {
   let url = `/appointments/range/${startDate}/${endDate}`
-  if (companyId) url += `?company_id=${companyId}`
+  let params = []
+  if (companyId) params.push(`company_id=${companyId}`)
+  if (centerId) params.push(`center_id=${centerId}`)
+  if (params.length) url += '?' + params.join('&')
   const { data } = await api.get(url)
   return data
 }
 
-export const getAvailableSlots = async (date, userId = null) => {
+export const getAvailableSlots = async (date, userId = null, centerId = null) => {
   let url = `/slots/${date}`
-  if (userId) url += `?user_id=${userId}`
+  let params = []
+  if (userId) params.push(`user_id=${userId}`)
+  if (centerId) params.push(`center_id=${centerId}`)
+  if (params.length) url += '?' + params.join('&')
 
   const { data } = await api.get(url)
   return data.slots
 }
 
-export const getAvailableUsers = async (date, companyId = null, time = null) => {
+export const getAvailableUsers = async (date, companyId = null, time = null, centerId = null) => {
   let url = `/users/available?date=${date}`
   if (companyId) url += `&company_id=${companyId}`
   if (time) url += `&time=${time}`
+  if (centerId) url += `&center_id=${centerId}`
   const { data } = await api.get(url)
   return data
 }
 
-export const getLeastBusyUser = async (date, time, companyId = null) => {
+export const getLeastBusyUser = async (date, time, companyId = null, centerId = null) => {
   let url = `/users/least-busy?date=${date}&time=${time}`
   if (companyId) url += `&company_id=${companyId}`
+  if (centerId) url += `&center_id=${centerId}`
   const { data } = await api.get(url)
   return data
 }
@@ -123,16 +137,22 @@ export const deleteAppointment = async (id) => {
 }
 
 // ===================== USERS =====================
-export const getAllUsers = async (companyId = null) => {
+export const getAllUsers = async (companyId = null, centerId = null) => {
   let url = '/users'
-  if (companyId) url += `?company_id=${companyId}`
+  let params = []
+  if (companyId) params.push(`company_id=${companyId}`)
+  if (centerId) params.push(`center_id=${centerId}`)
+  if (params.length) url += '?' + params.join('&')
   const { data } = await api.get(url)
   return data
 }
 
-export const getUserById = async (id, companyId = null) => {
+export const getUserById = async (id, companyId = null, centerId = null) => {
   let url = `/users/${id}`
-  if (companyId) url += `?company_id=${companyId}`
+  let params = []
+  if (companyId) params.push(`company_id=${companyId}`)
+  if (centerId) params.push(`center_id=${centerId}`)
+  if (params.length) url += '?' + params.join('&')
   const { data } = await api.get(url)
   return data
 }
@@ -173,9 +193,39 @@ export const updateCompany = async (id, companyData) => {
   return data
 }
 
-export const connectWhatsApp = async (companyId = null) => {
-  const query = companyId ? `?company_id=${companyId}` : ''
+export const connectWhatsApp = async (companyId = null, centerId = null) => {
+  let query = ''
+  if (companyId) query += `?company_id=${companyId}`
+  if (centerId) query += (query ? '&' : '?') + `center_id=${centerId}`
   const { data } = await api.get(`/whatsapp/oauth/connect${query}`)
+  return data
+}
+
+// ===================== CENTERS =====================
+export const getAllCenters = async (companyId) => {
+  let url = '/centers'
+  if (companyId) url += `?company_id=${companyId}`
+  const { data } = await api.get(url)
+  return data
+}
+
+export const getCenterById = async (id) => {
+  const { data } = await api.get(`/centers/${id}`)
+  return data
+}
+
+export const createCenter = async (centerData) => {
+  const { data } = await api.post('/centers', centerData)
+  return data
+}
+
+export const updateCenter = async (id, centerData) => {
+  const { data } = await api.put(`/centers/${id}`, centerData)
+  return data
+}
+
+export const deleteCenter = async (id) => {
+  const { data } = await api.delete(`/centers/${id}`)
   return data
 }
 

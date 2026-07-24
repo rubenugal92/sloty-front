@@ -76,9 +76,10 @@
 
     </div>
 
-    <div v-if="auth.isSuperAdmin" class="nav-workspace">
+    <div v-if="auth.isSuperAdmin || auth.isAdmin" class="nav-workspace">
       <div class="nav-workspace-inner">
         <CompanySelector />
+        <CenterSelector />
       </div>
     </div>
     <!-- MODAL WHATSAPP INFO -->
@@ -116,9 +117,11 @@ import { getUser, logout, connectWhatsApp } from '../api/appointments.js'
 import { useAuthStore } from '../stores/auth'
 import { useFullscreenStore } from '../stores/fullscreen'
 import { useCompaniesStore } from '../stores/companies'
+import { useCentersStore } from '../stores/centers'
 import { useAppointmentsStore } from '../stores/appointments'
 import { useUsersStore } from '../stores/users'
 import CompanySelector from './CompanySelector.vue'
+import CenterSelector from './CenterSelector.vue'
 import NotificationBell from './NotificationBell.vue'
 
 const router = useRouter()
@@ -126,6 +129,7 @@ const route = useRoute()
 const auth = useAuthStore()
 const fullscreenStore = useFullscreenStore()
 const companies = useCompaniesStore()
+const centers = useCentersStore()
 const appointments = useAppointmentsStore()
 const users = useUsersStore()
 
@@ -181,7 +185,8 @@ const startWhatsappConnection = async () => {
     connecting.value = true
 
     const companyId = companies.selectedCompanyId || auth.user?.company_id
-    const data = await connectWhatsApp(companyId)
+    const centerId = centers.selectedCenterId
+    const data = await connectWhatsApp(companyId, centerId)
 
     window.location.href = data.url
   } catch (error) {
