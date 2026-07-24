@@ -1,90 +1,104 @@
 <template>
-  <div class="form-container">
-    <h3>{{ isEditing ? 'Editar Empleado' : 'Nuevo Empleado' }}</h3>
-
-    <form @submit.prevent="submitForm" class="user-form">
-      <div class="form-group">
-        <label>Nombre de Usuario</label>
-        <input 
-          v-model="form.username"
-          type="text"
-          placeholder="Ej: juanGarcia92"
-          required
-          :disabled="loading"
-        />
-      </div>
+   <div class="form-container">
+     <h3>{{ isEditing ? 'Editar Empleado' : 'Nuevo Empleado' }}</h3>
+ 
+     <form @submit.prevent="submitForm" class="user-form">
+       <div class="form-group">
+         <label>Nombre de Usuario</label>
+         <input 
+           v-model="form.username"
+           type="text"
+           placeholder="Ej: juanGarcia92"
+           required
+           :disabled="loading"
+         />
+       </div>
+ 
+        <div class="form-group">
+         <label>Nombre</label>
+         <input 
+           v-model="form.name"
+           type="text"
+           placeholder="Ej: Juan García"
+           required
+           :disabled="loading"
+         />
+       </div>
+ 
+       <div class="form-group">
+         <label>Email</label>
+         <input 
+           v-model="form.email"
+           type="email"
+           placeholder="correo@ejemplo.com"
+           required
+           :disabled="loading"
+         />
+       </div>
+ 
+       <div class="form-group">
+         <label>Password {{ isEditing ? '(dejar vacío para mantener actual)' : '' }}</label>
+         <input 
+           v-model="form.password"
+           type="password"
+           placeholder="••••••••"
+           :required="!isEditing"
+           :disabled="loading"
+         />
+       </div>
+ 
+       <div class="form-group">
+         <label>Teléfono</label>
+         <input 
+           v-model="form.phone"
+           type="tel"
+           placeholder="+34 xxx xxx xxx"
+           :disabled="loading"
+         />
+       </div>
+ 
+       <div class="form-group">
+         <label>Especialidades</label>
+         <input
+           v-model="form.specialties"
+           type="text"
+           placeholder="Ej: Color, Manicura, Nutrición deportiva…"
+           :disabled="loading"
+         />
+       </div>
+ 
+ 
+       <div class="form-group">
+         <label>Cargo / Puesto</label>
+         <input
+           v-model="form.type"
+           type="text"
+           placeholder="Ej: Peluquero, Fisioterapeuta, Camarero…"
+           :disabled="loading"
+         />
+       </div>
 
        <div class="form-group">
-        <label>Nombre</label>
-        <input 
-          v-model="form.name"
-          type="text"
-          placeholder="Ej: Juan García"
-          required
-          :disabled="loading"
-        />
-      </div>
-
-      <div class="form-group">
-        <label>Email</label>
-        <input 
-          v-model="form.email"
-          type="email"
-          placeholder="correo@ejemplo.com"
-          required
-          :disabled="loading"
-        />
-      </div>
-
-      <div class="form-group">
-        <label>Password {{ isEditing ? '(dejar vacío para mantener actual)' : '' }}</label>
-        <input 
-          v-model="form.password"
-          type="password"
-          placeholder="••••••••"
-          :required="!isEditing"
-          :disabled="loading"
-        />
-      </div>
-
-      <div class="form-group">
-        <label>Teléfono</label>
-        <input 
-          v-model="form.phone"
-          type="tel"
-          placeholder="+34 xxx xxx xxx"
-          :disabled="loading"
-        />
-      </div>
-
-      <div class="form-group">
-        <label>Especialidades</label>
-        <input
-          v-model="form.specialties"
-          type="text"
-          placeholder="Ej: Color, Manicura, Nutrición deportiva…"
-          :disabled="loading"
-        />
-      </div>
-
-
-      <div class="form-group">
-        <label>Cargo / Puesto</label>
-        <input
-          v-model="form.type"
-          type="text"
-          placeholder="Ej: Peluquero, Fisioterapeuta, Camarero…"
-          :disabled="loading"
-        />
-      </div>
-
-      <div class="form-group">
-        <label>Rol</label>
-        <select v-model="form.role" required :disabled="loading">
-          <option value="user">Usuario</option>
-          <option value="admin">Admin</option>
-        </select>
-      </div>
+         <label>Centro</label>
+         <select 
+           v-model="form.center_id" 
+           required 
+           :disabled="loading || centers.length === 0"
+         >
+           <option value="">{{ centers.length === 0 ? 'Sin centros disponibles' : 'Selecciona un centro' }}</option>
+           <option v-for="center in centers" :key="center.id" :value="center.id">
+             {{ center.name }}
+           </option>
+         </select>
+       </div>
+ 
+       <div class="form-group">
+         <label>Rol</label>
+         <select v-model="form.role" required :disabled="loading">
+           <option value="user">Usuario</option>
+           <option value="admin">Admin</option>
+         </select>
+       </div>
 
       <div class="form-actions">
         <button type="submit" class="btn btn-primary" :disabled="loading">
@@ -110,6 +124,7 @@ import Swal from 'sweetalert2'
 import { createUser, updateUser } from '../api/appointments.js'
 import { useAuthStore } from '../stores/auth'
 import { useCompaniesStore } from '../stores/companies'
+import { useCentersStore } from '../stores/centers'
 
 export default {
   name: 'UserForm',
@@ -121,6 +136,7 @@ export default {
   setup(props, { emit }) {
     const auth = useAuthStore()
     const companies = useCompaniesStore()
+    const centersStore = useCentersStore()
 
      const form = ref({
       email: '',
@@ -129,17 +145,61 @@ export default {
       name: '',
       specialties: '',
       phone: '',
-      type: ''
-    })
+      type: '',
+      role: 'user',
+      center_id: null
+     })
 
     const loading = ref(false)
+    const centers = ref([])
     const isEditing = computed(() => !!props.editing?.id)
+
+    // Cargar centers cuando cambia company o al iniciar
+    const loadCenters = async () => {
+      try {
+        let companyId
+        
+        if (auth.isSuperAdmin) {
+          companyId = companies.selectedCompanyId
+        } else if (auth.isAdmin) {
+          companyId = auth.user?.company_id
+        }
+        
+        if (companyId) {
+          // Usar store de centers
+          await centersStore.loadCenters(companyId)
+          centers.value = centersStore.items
+          
+          // Limpiar selección de center si la company cambió
+          if (!isEditing.value) {
+            form.value.center_id = null
+          }
+        } else {
+          centers.value = []
+          form.value.center_id = null
+        }
+      } catch (error) {
+        console.error('Error loading centers:', error)
+        centers.value = []
+        form.value.center_id = null
+      }
+    }
 
     const submitForm = async () => {
       try {
         loading.value = true
         const data = { ...form.value }
         
+        // Validar que center_id esté seleccionado
+        if (!data.center_id) {
+          await Swal.fire({
+            icon: 'warning',
+            title: 'Atención',
+            text: 'Selecciona un centro antes de crear/actualizar el empleado.'
+          })
+          return
+        }
+
         // Si estamos editando y la password está vacía, no enviarla
         if (isEditing.value && !data.password) {
           delete data.password
@@ -148,19 +208,7 @@ export default {
         if (isEditing.value) {
           await updateUser(props.editing.id, data)
         } else {
-          // Superadmin debe especificar la empresa destino (la seleccionada)
-          if (auth.isSuperAdmin) {
-            if (!companies.selectedCompanyId) {
-              await Swal.fire({
-                icon: 'warning',
-                title: 'Atención',
-                text: 'Selecciona una empresa en la barra superior antes de crear un empleado.'
-              })
-              return
-            }
-            data.company_id = companies.selectedCompanyId
-          }
-          // Admin normal → el backend usa su req.user.company_id automáticamente
+          // IMPORTANTE: pasar center_id, no company_id
           await createUser(data)
         }
 
@@ -186,7 +234,8 @@ export default {
       phone: '',
       specialties: '',
       type: '',
-      role: 'user'
+      role: 'user',
+      center_id: null
     })
 
     const resetForm = () => {
@@ -202,9 +251,20 @@ export default {
       }
     }, { immediate: true })
 
+    // Watch company change (superadmin)
+    watch(() => companies.selectedCompanyId, () => {
+      loadCenters()
+    })
+
+    // Cargar centers al montar componente
+    watch(() => [auth.user?.company_id, companies.selectedCompanyId], () => {
+      loadCenters()
+    }, { immediate: true })
+
     return {
       form,
       loading,
+      centers,
       isEditing,
       submitForm,
       resetForm

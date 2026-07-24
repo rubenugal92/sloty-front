@@ -66,16 +66,22 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import Swal from 'sweetalert2'
 import { useUsersStore } from '../stores/users'
+import { useCentersStore } from '../stores/centers'
 import UserForm from '../components/UserForm.vue'
 
 const store = useUsersStore()
+const centersStore = useCentersStore()
 const showForm = ref(false)
 const editingUser = ref(null)
 
 onMounted(() => {
+  store.fetch()
+})
+
+watch(() => centersStore.selectedCenterId, () => {
   store.fetch()
 })
 

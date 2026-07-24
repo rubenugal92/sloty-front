@@ -44,14 +44,15 @@ const ensureLoaded = async () => {
   if (!showSelector.value) return
   
   const companyId = companiesStore.selectedCompanyId || auth.user?.company_id
-  if (!companyId) return
-
-  if (!centersStore.items.length && !centersStore.loading) {
-    await centersStore.loadCenters(companyId)
+  if (!companyId) {
+    selectedId.value = null
+    return
   }
+
+  await centersStore.loadCenters(companyId)
   
   if (!selectedId.value && centersStore.items.length) {
-    selectedId.value = centersStore.selectedCenterId ?? centersStore.items[0].id
+    selectedId.value = centersStore.items[0].id
     centersStore.selectCenter(selectedId.value)
     auth.setSelectedCenterId(selectedId.value)
   }

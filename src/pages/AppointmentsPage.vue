@@ -104,15 +104,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useAppointmentsStore } from '../stores/appointments'
 import { useFullscreenStore } from '../stores/fullscreen'
+import { useCentersStore } from '../stores/centers'
 
 import Calendar from '../components/Calendar.vue'
 import AppointmentForm from '../components/AppointmentForm.vue'
 
 const store = useAppointmentsStore()
 const fullscreenStore = useFullscreenStore()
+const centersStore = useCentersStore()
 const selectedDate = ref(null)
 const appointmentsForSelectedDay = ref([])
 
@@ -120,6 +122,10 @@ const appointmentsForSelectedDay = ref([])
 const isFullscreen = fullscreenStore.isFullscreen
 
 onMounted(() => {
+  store.load()
+})
+
+watch(() => centersStore.selectedCenterId, () => {
   store.load()
 })
 
