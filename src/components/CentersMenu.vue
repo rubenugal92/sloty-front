@@ -133,7 +133,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { useCompaniesStore } from '../stores/companies'
 import { useCentersStore } from '../stores/centers'
@@ -248,6 +248,12 @@ const startWhatsappConnection = async () => {
 onMounted(() => {
   const companyId = companiesStore.selectedCompanyId || auth.user?.company_id
   if (companyId && !centersStore.items.length) {
+    centersStore.loadCenters(companyId)
+  }
+})
+
+watch(() => companiesStore.selectedCompanyId, (companyId) => {
+  if (companyId) {
     centersStore.loadCenters(companyId)
   }
 })

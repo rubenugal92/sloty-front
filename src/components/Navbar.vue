@@ -46,12 +46,22 @@
            <span>Empresas</span>
          </button>
 
-         <button
-           v-if="canConnectWhatsapp"
-           class="nav-button"
-           @click="handleConnectWhatsApp"
-           :disabled="connecting"
-         >
+          <button
+            v-if="auth.isSuperAdmin || auth.isAdmin"
+            class="nav-button"
+            :class="{ active: route.path === '/centros' }"
+            @click="go('/centros')"
+          >
+            <i class="ri-map-pin-2-line"></i>
+            <span>Centros</span>
+          </button>
+
+          <button
+            v-if="canConnectWhatsapp"
+            class="nav-button"
+            @click="handleConnectWhatsApp"
+            :disabled="connecting"
+          >
         <span class="nav-icon">
          <img src="../../img/logoWhatsapp.png" alt="WhatsApp" class="whatsapp-icon" />
        </span>
@@ -80,7 +90,6 @@
       <div class="nav-workspace-inner">
         <CompanySelector />
         <CenterSelector />
-        <CentersMenu />
       </div>
     </div>
     <!-- MODAL WHATSAPP INFO -->
@@ -123,7 +132,6 @@ import { useAppointmentsStore } from '../stores/appointments'
 import { useUsersStore } from '../stores/users'
 import CompanySelector from './CompanySelector.vue'
 import CenterSelector from './CenterSelector.vue'
-import CentersMenu from './CentersMenu.vue'
 import NotificationBell from './NotificationBell.vue'
 
 const router = useRouter()
