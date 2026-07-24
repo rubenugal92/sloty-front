@@ -80,6 +80,7 @@
       <div class="nav-workspace-inner">
         <CompanySelector />
         <CenterSelector />
+        <CentersMenu />
       </div>
     </div>
     <!-- MODAL WHATSAPP INFO -->
@@ -122,6 +123,7 @@ import { useAppointmentsStore } from '../stores/appointments'
 import { useUsersStore } from '../stores/users'
 import CompanySelector from './CompanySelector.vue'
 import CenterSelector from './CenterSelector.vue'
+import CentersMenu from './CentersMenu.vue'
 import NotificationBell from './NotificationBell.vue'
 
 const router = useRouter()
