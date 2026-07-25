@@ -56,8 +56,9 @@ export const useNotificationsStore = defineStore('notifications', {
           }
         }
 
-        this.ws.onclose = () => {
+        this.ws.onclose = (event) => {
           console.log('❌ WebSocket disconnected')
+          console.log(`   Code: ${event.code}, Reason: ${event.reason}, Clean: ${event.wasClean}`)
           this.isConnected = false
           
           // Exponential backoff: 1s, 2s, 4s, 8s, 16s (max 5 attempts)
