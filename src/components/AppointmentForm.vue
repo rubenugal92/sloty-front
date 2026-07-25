@@ -145,6 +145,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import Swal from 'sweetalert2'
 import { useCompaniesStore } from '../stores/companies'
+import { useCentersStore } from '../stores/centers'
 import { createAppointment, updateAppointment as updateAppointmentAPI, deleteAppointment as deleteAppointmentAPI, getAvailableSlots, getAvailableUsers, getLeastBusyUser, getAllUsers } from '../api/appointments.js'
 
 export default {
@@ -157,6 +158,7 @@ export default {
   emits: ['save', 'delete', 'clear'],
   setup(props, { emit }) {
     const companies = useCompaniesStore()
+    const centers = useCentersStore()
 
     const form = ref({
       phone: '',
@@ -290,7 +292,8 @@ export default {
         service: form.value.service,
         status: form.value.status,
         notes: form.value.notes,
-        user_id: parseInt(userId)
+        user_id: parseInt(userId),
+        center_id: centers.selectedCenterId
       }
 
       try {
