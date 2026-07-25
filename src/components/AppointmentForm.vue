@@ -194,7 +194,7 @@ export default {
       }
 
       try {
-        const fetched = await getAvailableUsers(date, companies.selectedCompanyId, time)
+        const fetched = await getAvailableUsers(date, companies.selectedCompanyId, time, centers.selectedCenterId)
         users.value = fetched || []
         // Preserve current user selection only if still available
         const currentId = form.value.user_id
@@ -231,7 +231,7 @@ export default {
         return
       }
       try {
-        availableSlots.value = await getAvailableSlots(form.value.date)
+        availableSlots.value = await getAvailableSlots(form.value.date, null, centers.selectedCenterId)
         form.value.time = ''
       } catch (e) {
         console.error('Error fetching slots:', e)
@@ -264,7 +264,7 @@ export default {
       let userId = form.value.user_id
       if (userId === 'indiferente') {
         try {
-          const leastBusy = await getLeastBusyUser(form.value.date, form.value.time, companies.selectedCompanyId)
+          const leastBusy = await getLeastBusyUser(form.value.date, form.value.time, companies.selectedCompanyId, centers.selectedCenterId)
           if (!leastBusy) {
             await Swal.fire({
               icon: 'error',
