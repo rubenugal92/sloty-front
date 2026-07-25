@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useNotificationsStore } from './notifications'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -21,6 +22,10 @@ export const useAuthStore = defineStore('auth', {
       this.token = token
       this.user = user
       this.isAuthenticated = true
+      
+      // Initialize WebSocket connection after login
+      const notificationsStore = useNotificationsStore()
+      notificationsStore.initWebSocket()
     },
 
     logout() {
@@ -33,6 +38,10 @@ export const useAuthStore = defineStore('auth', {
       this.isAuthenticated = false
       this.selectedCompanyId = null
       this.selectedCenterId = null
+      
+      // Disconnect WebSocket on logout
+      const notificationsStore = useNotificationsStore()
+      notificationsStore.disconnectWebSocket()
     },
 
     setSelectedCompanyId(companyId) {

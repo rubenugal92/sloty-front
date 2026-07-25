@@ -99,12 +99,13 @@ const handleClickOutside = (event) => {
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  // Initialize WebSocket (idempotent, won't reconnect if already connected)
   notifStore.initWebSocket()
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
-  notifStore.disconnectWebSocket()
+  // Don't disconnect WebSocket here - it should persist across component lifecycle
 })
 </script>
 

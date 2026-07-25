@@ -12,14 +12,18 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useAuthStore } from './stores/auth'
+import { useNotificationsStore } from './stores/notifications'
 import { useFullscreenStore } from './stores/fullscreen'
 import Navbar from './components/Navbar.vue'
 import Footer from './components/Footer.vue'
 import CookieConsent from './components/CookieConsent.vue'
 
 const route = useRoute()
+const auth = useAuthStore()
+const notificationsStore = useNotificationsStore()
 const fullscreenStore = useFullscreenStore()
 
 const hiddenNavbarRoutes = [
@@ -31,6 +35,13 @@ const hiddenNavbarRoutes = [
 
 const showNavbar = computed(() => {
   return !hiddenNavbarRoutes.includes(route.path)
+})
+
+onMounted(() => {
+  // Initialize WebSocket if already authenticated
+  if (auth.isAuthenticated && !notificationsStore.isConnected) {
+    notificationsStore.initWebSocket()
+  }
 })
 </script>
 
