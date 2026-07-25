@@ -8,12 +8,21 @@ export const useNotificationsStore = defineStore('notifications', {
     unreadCount: 0,
     ws: null,
     isConnected: false,
+    reconnectAttempts: 0,
+    maxReconnectAttempts: 5,
   }),
 
   actions: {
     // Initialize WebSocket connection
     initWebSocket() {
       const auth = useAuthStore()
+      
+      // Guard: if already connected or connecting, don't create new connection
+      if (this.isConnected || (this.ws && this.ws.readyState === WebSocket.CONNECTING)) {
+        console.log('✅ WebSocket already connected or connecting');
+        return
+      }
+      
       if (!auth.isAuthenticated || !auth.user) {
         console.log('❌ WebSocket: Not authenticated or no user. Retrying in 2s...');
         // Reintentar si no está autenticado
@@ -34,6 +43,7 @@ export const useNotificationsStore = defineStore('notifications', {
         this.ws.onopen = () => {
           console.log('✅ WebSocket connected (user:', auth.user.id, ')')
           this.isConnected = true
+          this.reconnectAttempts = 0  // Reset counter on successful connection
         }
 
         this.ws.onmessage = (event) => {
@@ -49,8 +59,16 @@ export const useNotificationsStore = defineStore('notifications', {
         this.ws.onclose = () => {
           console.log('❌ WebSocket disconnected')
           this.isConnected = false
-          // Reconnect after 3s
-          setTimeout(() => this.initWebSocket(), 3000)
+          
+          // Exponential backoff: 1s, 2s, 4s, 8s, 16s (max 5 attempts)
+          if (this.reconnectAttempts < this.maxReconnectAttempts) {
+            this.reconnectAttempts++
+            const delay = 1000 * Math.pow(2, this.reconnectAttempts - 1)
+            console.log(`🔄 Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`)
+            setTimeout(() => this.initWebSocket(), delay)
+          } else {
+            console.log('❌ Max reconnect attempts reached')
+          }
         }
 
         this.ws.onerror = (error) => {
